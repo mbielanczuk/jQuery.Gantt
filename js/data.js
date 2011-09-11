@@ -1,11 +1,7 @@
-
-
-
 [{ "name": "Jan Kowalski",
    "desc": "Programista",
    "values": [
-       {"from": "/Date(1309471200000)/", "to": "/Date(1310421600000)/", "desc": "<b>Type</b>: Task<br/><b>name</b>: Task 1<br/><b>Description</b>: Task desc."},
-       {"from": "/Date(1310594400000)/", "to": "/Date(1311112800000)/", "desc": "<b>Type</b>: Task<br/><b>name</b>: Task 2<br/><b>Description</b>: Task desc.", "customClass": "ganttOrange"}
+       {"from": "/Date(1302203200000)/", "to": "/Date(1310508000000)/", "desc": "Type: Task<br/>name: Task 3<br/>Description: Task desc.", "customClass": "ganttRed"}
      ]
 },
 { "name": "Jan Nowak",

@@ -196,7 +196,7 @@ jQuery.fn.gantt = function (options) {
 					var dRow = jQuery('<div class="row">');
 					jQuery.each(range, function(j, day) {
 						var todayCls = (today - day == 0) ? ' today' : day.getDay() == 6 ? ' sa' : (day.getDay() == 0 ? ' sn' : '');
-						dRow.append(jQuery('<div class="row day' + todayCls + '" id="d'+i+'-'+day.getTime()+'" />')
+						dRow.append(jQuery('<div class="row day' + todayCls + '" id="d'+i+'-'+ tools.genId(day.getTime())+'" />')
 						.html(day));
 					});
 					dataPanel.append(dRow);
@@ -240,7 +240,7 @@ jQuery.fn.gantt = function (options) {
 			{
 				jQuery.each(data, function(i, entry) {
 					jQuery.each(options.hollydays, function(j, hollyday) {
-						jQuery('#d'+i+'-'+ tools.dateDeserialize(hollyday).getTime())
+						jQuery('#d'+i+'-'+ tools.genId(tools.dateDeserialize(hollyday).getTime()))
 						.addClass("hollyday");
 					});
 				});
@@ -252,16 +252,16 @@ jQuery.fn.gantt = function (options) {
 				if (i >= pageNum * options.itemsPerPage && i < (pageNum*options.itemsPerPage+options.itemsPerPage))
 				{
 					jQuery.each(entry.values, function(j, day) {
-						jQuery('#d'+i+'-'+ tools.dateDeserialize(day.from).getTime())
-						.append(
-						createProgressBar(
-						Math.floor(((Date.parse(tools.dateDeserialize(day.to)) / 1000)
-							- (Date.parse(tools.dateDeserialize(day.from)) / 1000)) / 86400),
-						 day.customClass ? day.customClass : '',
-						 day.desc ? day.desc : ''
-						)
-						)
-				})
+						var _bar = createProgressBar(
+							Math.floor(((Date.parse(tools.dateDeserialize(day.to)) / 1000)
+									- (Date.parse(tools.dateDeserialize(day.from)) / 1000)) / 86400),
+								 day.customClass ? day.customClass : '',
+								 day.desc ? day.desc : ''
+								);
+						jQuery('#d'+i+'-'+ tools.genId(tools.dateDeserialize(day.from).getTime()))
+						.append(_bar
+						);
+				});
 				}
 			});
 		};
@@ -271,13 +271,13 @@ jQuery.fn.gantt = function (options) {
 				case 'begin':
 					jQuery('.fn-gantt .dataPanel').animate({
 						'margin-left': '0px'
-					}, 'fast', function() {repositionLabel()});
+					}, 'fast', function() {repositionLabel();});
 					break;
 				case 'end':
 					var mLeft = jQuery('.fn-gantt .dataPanel').width() - jQuery('.fn-gantt .rightPanel').width();
 					jQuery('.fn-gantt .dataPanel').animate({
 						'margin-left': '-' + mLeft + 'px'
-					}, 'fast', function() {repositionLabel()});
+					}, 'fast', function() {repositionLabel();});
 					break;
 				default:
 					var max_left = (jQuery('.fn-gantt .dataPanel').width() - jQuery('.fn-gantt .rightPanel').width()) * -1;
@@ -318,7 +318,7 @@ jQuery.fn.gantt = function (options) {
 				    {
 				    	var viewArea = {
 				    		left: objDim.offset.left > wrapper.offset.left ? objDim.offset.left : wrapper.offset.left,
-				    		right: objDim.offset.left+objDim.width < wrapper.offset.left + wrapper.width ? objDim.offset.left+objDim.width : wrapper.offset.left + wrapper.width, 
+				    		right: objDim.offset.left+objDim.width < wrapper.offset.left + wrapper.width ? objDim.offset.left+objDim.width : wrapper.offset.left + wrapper.width 
 				    	};
 				    	jQuery(obj).children(".label").css("float", "left");
 				    	var labelWidth = jQuery(obj).children(".label").width();
@@ -365,11 +365,15 @@ jQuery.fn.gantt = function (options) {
 			do {
 				ret[i++] = new Date(current.getTime());
 				current.setDate(current.getDate()+1);
-			} while (current <= to)
+			} while (current <= to);
 			return ret;
 		};
 		this.dateDeserialize = function (dateStr) {
 			return eval('new' + dateStr.replace(/\//g, ' '));
+		};
+		this.genId = function (ticks) {
+			var t = Math.floor(ticks / 86400000);
+			return t * 86400000;
 		};
 		var _getCellSize = null;
 		this.getCellSize = function() {
@@ -402,5 +406,4 @@ jQuery.fn.gantt = function (options) {
 	};
 	jQuery(this).empty();
 	create(jQuery(this));
-	
-}
+};
