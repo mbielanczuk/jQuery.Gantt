@@ -51,7 +51,7 @@ jQuery.fn.gantt = function (options) {
 			var d = Math.round((options.startPos/1000 - dateStart/1000) / 86400 )-2;
 			if (d > 0)
 			{
-				navigate(-1*d * tools.getCellSize());
+				navigateTo(-1*d * tools.getCellSize());
 			} else {
 				repositionLabel();
 			}
@@ -90,32 +90,32 @@ jQuery.fn.gantt = function (options) {
 				.append(jQuery('<a href="javascript:///" class="nav-link nav-begin"/>')
 					.html('&#124;&lt;')
 					.click( function () {
-						navigate('begin');
+						navigateTo('begin');
 					}))
 				.append(jQuery('<a href="javascript:///" class="nav-link nav-prev-week"/>')
 					.html('&lt;&lt;')
 					.click( function () {
-						navigate(tools.getCellSize()*7);
+						navigateTo(tools.getCellSize()*7);
 					}))
 				.append(jQuery('<a href="javascript:///" class="nav-link nav-prev-day"/>')
 					.html('&lt;')
 					.click( function () {
-						navigate(tools.getCellSize());
+						navigateTo(tools.getCellSize());
 					}))
 				.append(jQuery('<a href="javascript:///" class="nav-link nav-next-day"/>')
 					.html('&gt;')
 					.click( function () {
-						navigate(tools.getCellSize() * -1);
+						navigateTo(tools.getCellSize() * -1);
 					}))
 				.append(jQuery('<a href="javascript:///" class="nav-link nav-next-week"/>')
 					.html('&gt;&gt;')
 					.click( function () {
-						navigate(tools.getCellSize() * -7);
+						navigateTo(tools.getCellSize() * -7);
 					}))
 				.append(jQuery('<a href="javascript:///" class="nav-link nav-end"/>')
 					.html('&gt;&#124;')
 					.click( function () {
-						navigate('end');
+						navigateTo('end');
 					}));
 
 			/* Container */
@@ -266,7 +266,7 @@ jQuery.fn.gantt = function (options) {
 			});
 		};
 
-		navigate = function(val) {
+		navigateTo = function(val) {
 			switch (val) {
 				case 'begin':
 					jQuery('.fn-gantt .dataPanel').animate({
