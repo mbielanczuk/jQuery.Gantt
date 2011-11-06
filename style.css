@@ -221,7 +221,7 @@ body {
 }
 
 .fn-gantt .navigate .nav-slider-content {
-	text-align: center;
+	text-align: left;
 	width: 160px;
 	height: 20px;
 	display: inline-block;

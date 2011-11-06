@@ -300,12 +300,11 @@
 							 */
 							var rm = rday.getMonth(); 
 							if (rm != month) {
-								months.html(months.html()+
-									$('<div class="row header month" style="width:'
-									   + tools.getCellSize()*daysInMonth 
-									   + 'px;"><div class="label">' 
-									   + settings.months[month]
-									   + '</div></div>'));
+								months.append( 
+									$('<div class="row header month" style="width: '
+									+ tools.getCellSize()*daysInMonth + 'px"><div class="label"/>'
+									+ settings.months[month]
+									+ '</div></div>'));
 								month = rm;
 								daysInMonth = 0;
 							}
