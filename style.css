@@ -3,11 +3,13 @@ body {
 	font-size: 11px;
 }
 
-.gantt {
-	width: 575px;
+.gantt, .gantt2 {
+	/*width: 575px;*/
+	width: 800px;
 	height: 500px;
 	margin: 20px auto;
 	border: 15px solid #ddd;
+
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;  
@@ -27,6 +29,7 @@ body {
 
 .fn-gantt .fn-content {
 	overflow: hidden;
+	position: relative;
 	width: 100%;
 }
 
@@ -34,7 +37,7 @@ body {
 
 .fn-gantt .leftPanel {
 	float: left;
-	width: 225px;
+	width: 200px;
 	overflow: hidden;
 	border-right: 1px solid #DDD;
 }
@@ -48,6 +51,9 @@ body {
 	margin: 0 0 0 5px;
 }
 
+.fn-gantt .leftPanel .row0 {
+	border-top: 1px solid #DDD;
+}
 .fn-gantt .leftPanel .name, .fn-gantt .leftPanel .desc {
 	float: left;
 	height: 23px;
@@ -57,17 +63,17 @@ body {
 }
  
 .fn-gantt .leftPanel .name {
-	width: 110px;
+	width: 100px;
 }
  
 .fn-gantt .leftPanel .desc {
-	width: 115px;
+	width: 100px;
 }
  
 .fn-gantt .spacer
 {
 	margin: -2px 0 1px 0;
-	border-bottom: 1px solid #DDD;
+	border-bottom: none;
 	background-color: #f6f6f6;
 }
 
@@ -75,8 +81,21 @@ body {
 
 .fn-gantt .rightPanel {
 	float: left;
-	width: 349px;
+	width: 599px;
 	overflow: hidden;
+}
+
+.fn-gantt .dataPanel {
+	margin-left: 0px;
+	border-right: 1px solid #DDD;
+}
+
+.fn-gantt .dataPanel:after {
+   content: ".";
+   visibility: hidden;
+   display: block;
+   height: 0;
+   clear: both;
 }
 
 .fn-gantt .day {
@@ -91,10 +110,14 @@ body {
 
 .fn-gantt .hollyday {
 	background-color: #f9e5e2;
+	height: 23px;
+	margin: 0 0 -1px -1px;
 }
 
 .fn-gantt .today {
 	background-color: #e2ebff;
+	height: 23px;
+	margin: 0 0 -1px -1px;
 }
 
 .fn-gantt .sa, .fn-gantt .sn, .fn-gantt .wd {
@@ -103,11 +126,11 @@ body {
 }
 
 .fn-gantt .sa {
-	background-color: #dfdfdf;
+	background-color: #eeeeee;
 }
 
 .fn-gantt .sn {
-	background-color: #dedede;
+	background-color: #eeeeee;
 }
 
 .fn-gantt .wd {
@@ -148,6 +171,11 @@ body {
     z-index: 10000;
 }
 
+.fn-gantt .bar .label {
+	line-height: 18px;
+	font-weight: bold;
+}
+
 .fn-gantt .ganttRed {
 	background-color: #8F0000;
 }
@@ -169,7 +197,66 @@ body {
 }
 .fn-gantt .navigate {
 	text-align: center;
+	border-top: 1px solid #DDD;
 }
+
+.fn-gantt .navigate .nav-slider {
+	width: 390px;
+	display: inline-block;
+}
+
+.fn-gantt .navigate .nav-slider-left, .fn-gantt .navigate .nav-slider-right {
+	text-align: center;
+	height: 20px;
+	display: inline-block;	
+}
+
+.fn-gantt .navigate .nav-slider-left {
+	float: left;
+}
+
+.fn-gantt .navigate .nav-slider-right {
+	float: right;
+
+}
+
+.fn-gantt .navigate .nav-slider-content {
+	text-align: center;
+	width: 160px;
+	height: 20px;
+	display: inline-block;
+	padding: 10px;
+	margin: 0;
+}
+
+.fn-gantt .navigate .nav-slider-bar, .fn-gantt .navigate .nav-slider-button {
+	position: absolute;
+	display: inline-block;	
+}
+
+.fn-gantt .navigate .nav-slider-bar {
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;   
+	width: 150px;
+	height: 10px;
+	background-color: #DDD;
+	margin: 5px 0 5px 0;	
+}
+
+.fn-gantt .navigate .nav-slider-button {
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;   
+	width: 14px;
+	height: 14px;
+	background-color: #888;
+	left: 0px;
+	top: 0px;
+	margin: -2px 0 0 0;	
+	cursor: pointer;
+}
+
 .fn-gantt .navigate .page-number {
 	display: inline-block;
 	font-size: 10px;
@@ -206,6 +293,10 @@ body {
 	margin-right: 15px;
 }
 
+.fn-gantt .navigate .nav-slider .nav-page-next {
+	margin-right: 5px;
+}
+ 
 .fn-gantt .navigate .nav-page-back:hover {
 	background-position: 0 -20px;
 }
@@ -244,6 +335,38 @@ body {
 	background-position: -170px 0;
 }
 
+.fn-gantt .navigate .nav-zoomOut {
+	background-image: url(img/buttons.png);
+	background-position: -190px 0;
+}
+
+.fn-gantt .navigate .nav-zoomOut:hover {
+	background-position: -190px -20px;
+}
+
+.fn-gantt .navigate .nav-zoomIn {
+	background-image: url(img/buttons.png);
+	background-position: -210px 0;
+	margin-left: 15px;
+}
+
+.fn-gantt .navigate .nav-zoomIn:hover {
+	background-position: -210px -20px;
+}
+
+.fn-gantt .navigate .nav-now {
+	background-image: url(img/buttons.png);
+	background-position: -230px 0;
+}
+
+.fn-gantt .navigate .nav-slider .nav-now {
+	margin-right: 5px;
+}
+
+.fn-gantt .navigate .nav-now:hover {
+	background-position: -230px -20px;
+}
+
 .fn-gantt .navigate .nav-begin:hover {
 	background-position: -70px -20px;
 }
@@ -266,4 +389,23 @@ body {
 
 .fn-gantt .navigate .nav-end:hover {
 	background-position: -170px -20px;
+}
+
+.fn-gantt-loader {
+	background-image: url(img/loader-bg.png);
+    z-index: 10001;
+}
+
+.fn-gantt-loader-spinner {
+	width: 100px;
+	height: 20px;
+	position: absolute;
+	margin-left: 50%;
+	margin-top: 50%;
+	text-align: center;
+}
+.fn-gantt-loader-spinner span {
+	color: #fff;
+	font-size: 12px;
+	font-weight: bold;
 }
