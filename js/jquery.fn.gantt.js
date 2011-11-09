@@ -101,10 +101,10 @@
 			if ((df.getMonth() == dt.getMonth())
 			 || (df.getMonth() != dt.getMonth() && dt.getDate() >= 4))
 			{
-				return new Date(dt.getTime());
+				return new Date(dt.setDate(dt.getDate()-3));
 			} else 
 			{
-				return new Date(df.getTime());
+				return new Date(df.setDate(df.getDate()+3));
 			}
 		};
 
@@ -172,6 +172,7 @@
 						hPos = hPos > 0 ? 0 : hPos;
 						$dataPanel.css({'margin-left': hPos+'px'});
 						element.scrollNavigation.panelMargin = hPos;
+						element.hPosition = hPos;
 						element.scaleOldWidth = null;
 					} else {
 						$dataPanel.css({'margin-left': element.hPosition+'px'});
