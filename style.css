@@ -40,6 +40,8 @@ body {
 	width: 200px;
 	overflow: hidden;
 	border-right: 1px solid #DDD;
+	position: relative;
+	z-index: 20000;
 }
 
 .fn-gantt .row {
@@ -167,8 +169,8 @@ body {
     background-color: #89c5f8;
     height: 18px;
     margin: 4px 3px 3px 3px;
-    position: relative;
-    z-index: 10000;
+    position: absolute;
+    z-index: 10000; 
 }
 
 .fn-gantt .bar .label {
@@ -393,7 +395,7 @@ body {
 
 .fn-gantt-loader {
 	background-image: url(img/loader-bg.png);
-    z-index: 10001;
+    z-index: 30000;
 }
 
 .fn-gantt-loader-spinner {

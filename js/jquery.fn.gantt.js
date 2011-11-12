@@ -1200,6 +1200,27 @@
 						    		.css("margin-left", objMarg + (viewArea.right - viewArea.left)/2 - labelWidth/2 + "px");
 					    }
 				});
+				$(".fn-gantt .rightPanel .bar").each(function(i, obj) {
+					var objDim = { offset: $(obj).offset(),
+								width: $(obj).width(),
+								height: $(obj).height()};
+
+					if (objDim.offset.left + objDim.width > wrapper.offset.left
+					        && objDim.offset.left < wrapper.offset.left+wrapper.width)
+					    {
+					    	var viewArea = {
+					    		left: objDim.offset.left > wrapper.offset.left ? objDim.offset.left : wrapper.offset.left,
+					    		right: objDim.offset.left+objDim.width < wrapper.offset.left + wrapper.width ? objDim.offset.left+objDim.width : wrapper.offset.left + wrapper.width 
+					    	};
+					    	$(obj).children(".label").css("float", "left");
+					    	var labelWidth = $(obj).children(".label").width();
+					    	
+					    	var objMarg = objDim.offset.left < wrapper.offset.left ? wrapper.offset.left-objDim.offset.left : 0;
+							if (viewArea.right-viewArea.left > labelWidth)
+						    	$(obj).children(".label")
+						    		.css("margin-left", objMarg + (viewArea.right - viewArea.left)/2 - labelWidth/2 + "px");
+					    }
+				});
 				core.synchronizeScroller(element);
 			},
 			waitToggle: function(element, show, fn){
