@@ -119,6 +119,7 @@
 				/**
 				 * Retrieve data
 				 */
+				$.ajaxSetup({ scriptCharset: "utf-8" , contentType: "application/json; charset=utf-8"});
 				$.getJSON(settings.source, function(jsData) {
 					element.data = jsData;
 					core.init(element);
@@ -264,7 +265,7 @@
 
 				var today = new Date();
 				today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-				var hollydays = settings.hollydays ? settings.hollydays.join() : '';
+				var hollydays = settings.holidays ? settings.holidays.join() : '';
 
 				switch (settings.scale)
 				{
@@ -405,10 +406,10 @@
 									var todayCls = gridDowClass[day.getDay()];
 									if (hollydays.indexOf((new Date(day.getFullYear(), day.getMonth(), day.getDate())).getTime())>-1)
 										 todayCls = " hollyday";
-									dRow += '<div class="row day' + todayCls + '" id="d'+i+'-'+ tools.genId( day.getTime() ) +'" /></div>';
+									dRow += '<div class="row day' + todayCls + '" id="d'+i+'-'+ tools.genId( day.getTime() ) +'" ></div>';
 								};
 								//dataPanel.append(dRow);
-								dataPanel.html(dataPanel.html()+dRow);
+								dataPanel.html(dataPanel.html()+dRow+'</div>');
 							}
 						}
 
@@ -504,7 +505,7 @@
 									day = range[x];
 									dRow += '<div class="row day" id="d'+i+'-'+ tools.genId( day.getTime() ) +'"></div>';
 								};
-								dataPanel.append(dRow);
+								dataPanel.append($(dRow+'</div>'));
 							}
 						}
 
@@ -573,16 +574,16 @@
 						for (var i=0; i<element.data.length; i++)
 						{
 							var entry = element.data[i];
-							
+
 							if (i >= element.pageNum*settings.itemsPerPage && i < (element.pageNum*settings.itemsPerPage+settings.itemsPerPage))
 							{
 								var dRow = '<div class="row">';
 								for (var x=0; x<range.length; x++)
 								{
 									day = range[x];
-									dRow += '<div class="row day" id="d'+i+'-'+ tools.genId( day.getTime() ) +'" /></div>';
+									dRow += '<div class="row day" id="d'+i+'-'+ tools.genId( day.getTime() ) +'" ></div>';
 								};
-								dataPanel.append(dRow);
+								dataPanel.append($(dRow+'</div>'));
 							}
 						}
 						
@@ -686,14 +687,14 @@
 										todayCls = " hollyday";
 									dRow += '<div class="row day ' + todayCls + '" id="d'+i+'-'+ tools.genId( day.getTime() ) +'"></div>';
 								};
-								dataPanel.append(dRow);
+								dataPanel.append($(dRow+'</div>'));
 							}
 						}
 						
 						break;
 				}
 
-				return $('<div class="rightPanel"/>').append(dataPanel); 
+				return $('<div class="rightPanel"></div>').append(dataPanel); 
 			},
 			navigation: function (element) {
 				var ganttNavigate = null;
@@ -912,7 +913,7 @@
 									.append(_bar);
 								break;
 								case 'weeks':
-								case 'months':									
+								case 'months':								
 									var dFrom = tools.genId(tools.dateDeserialize(day.from).getTime());
 									var dTo   = tools.genId(tools.dateDeserialize(day.to).getTime());
 									var cFrom = $(element).find('#d'+i+'-'+ dFrom).offset().left;
