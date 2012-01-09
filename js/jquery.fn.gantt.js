@@ -119,11 +119,20 @@
 				/**
 				 * Retrieve data
 				 */
-				$.ajaxSetup({ scriptCharset: "utf-8" , contentType: "application/json; charset=utf-8"});
-				$.getJSON(settings.source, function(jsData) {
-					element.data = jsData;
+				if(typeof(settings.source) == 'object'){
+					
+					element.data = settings.source;
 					core.init(element);
-				});
+ 	
+				} else {
+				 
+					$.ajaxSetup({ scriptCharset: "utf-8" , contentType: "application/json; charset=utf-8"});
+					$.getJSON(settings.source, function(jsData) {
+						element.data = jsData;
+						core.init(element);
+					});
+				}
+
 			},
 			init: function (element) {
 					element.rowsNum = element.data.length;
