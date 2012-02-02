@@ -5,7 +5,7 @@
  * http://mbielanczuk.com/
  * Released under the MIT and GPL Licenses.
  *
- * Date: Fri Nov 04 2011 21:15:52 +0100
+ * Last Modified: Thu Feb 02 2012 13:35:00 +0800
  */
 
 (function ($) {
@@ -927,10 +927,12 @@
                                     break;
                             }
                             var $l = _bar.find(".fn-label");
-                            if ($l) {
-                                var gray = invertColor(_bar.css("background-color"));
-                                $l.css("color", gray);
-                            }
+                            if ($l && _bar.length)  {
+                                var gray = invertColor(_bar[0].style.backgroundColor);
+                                $l.css("color",gray);
+                            } else if ($l) {
+                                $l.css("color","");
+							}
                         });
                     }
                 });
