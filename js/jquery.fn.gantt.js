@@ -1,16 +1,16 @@
 /**
- *
- * JQuery fn.gantt gantt chart plugin v1.2.0
- * Copyright 2011 by Marek Bielańczuk
- * http://mbielanczuk.com/
- * Released under the MIT and GPL Licenses.
- *
- * Last Modified: Thu Feb 02 2012 13:35:00 +0800
- */
+*
+* JQuery fn.gantt gantt chart plugin v1.2.0
+* Copyright 2011 by Marek Bielańczuk
+* http://mbielanczuk.com/
+* Released under the MIT and GPL Licenses.
+*
+* Last Modified: Fri Feb 03 2012 8:57:00 +0800
+*/
 
 (function ($) {
 
-	"use strict";
+    "use strict";
 
     $.fn.gantt = function (options) {
 
@@ -19,7 +19,7 @@
         var settings = {
             source: null,
             itemsPerPage: 7,
-            months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
+            months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
             dow: ["S", "M", "T", "W", "T", "F", "S"],
             startPos: new Date(),
             navigate: "buttons",
@@ -164,10 +164,6 @@
                 core.markNow(element);
                 core.fillData(element);
 
-                $(element).css({
-                    height: $(element).find(".fn-gantt").height() + "px"
-                });
-
                 var d = Math.round((settings.startPos / 1000 - element.dateStart / 1000) / 86400) - 2;
                 if (d > 0 && element.hPosition != 0) {
                     if (element.scaleOldWidth) {
@@ -269,7 +265,7 @@
                 var holidays = settings.holidays ? settings.holidays.join() : '';
 
                 switch (settings.scale) {
-                    // hours /////////////////////////////////////////////////////////////////////////////////////////   
+                    // hours /////////////////////////////////////////////////////////////////////////////////////////    
                     case "hours":
 
                         range = tools.parseTimeRange(element.dateStart, element.dateEnd, element.scaleStep);
@@ -411,7 +407,7 @@
 
                         break;
 
-                    // weeks /////////////////////////////////////////////////////////////////////////////////////////   
+                    // weeks /////////////////////////////////////////////////////////////////////////////////////////    
                     case "weeks":
                         range = tools.parseWeeksRange(element.dateStart, element.dateEnd);
 
@@ -503,7 +499,7 @@
 
 
                         break;
-                    // months ////////////////////////////////////////////////////////////////////////////////////////   
+                    // months ////////////////////////////////////////////////////////////////////////////////////////    
                     case 'months':
                         range = tools.parseMonthsRange(element.dateStart, element.dateEnd);
 
@@ -576,7 +572,7 @@
                         }
 
                         break;
-                    // days //////////////////////////////////////////////////////////////////////////////////////////   
+                    // days //////////////////////////////////////////////////////////////////////////////////////////    
                     default:
                         range = tools.parseDateRange(element.dateStart, element.dateEnd);
 
@@ -818,7 +814,7 @@
 						.css({
 						    width: ((cellWidth * days) - barMarg)
 						})
-						.data("dataObj",dataObj);
+						.data("dataObj", dataObj);
 
                 if (desc) {
                     bar
@@ -927,12 +923,12 @@
                                     break;
                             }
                             var $l = _bar.find(".fn-label");
-                            if ($l && _bar.length)  {
+                            if ($l && _bar.length) {
                                 var gray = invertColor(_bar[0].style.backgroundColor);
-                                $l.css("color",gray);
+                                $l.css("color", gray);
                             } else if ($l) {
-                                $l.css("color","");
-							}
+                                $l.css("color", "");
+                            }
                         });
                     }
                 });
