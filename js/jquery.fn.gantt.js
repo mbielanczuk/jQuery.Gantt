@@ -47,7 +47,7 @@
 		        id = id?id:'';
 		        var si = id.indexOf('-')+1;
 		        cd = cd.getFullYear()+'-'+cd.getDayForWeek().getWeekOfYear();
-		        var ed = $(a).attr('id').substring(si, $(a).attr('id').length);
+		        var ed = id.substring(si, id.length);
 		        return cd == ed;
 		    }
 		});
@@ -59,7 +59,7 @@
 		        var id = $(a).attr('id');
 		        id = id?id:'';
 		        var si = id.indexOf('-')+1;
-		        var ed = $(a).attr('id').substring(si, $(a).attr('id').length);
+		        var ed = id.substring(si, id.length);
 		        return cd == ed;
 		    }
 		});
