@@ -925,6 +925,12 @@
 								case 'months':								
 									var dFrom = tools.genId(tools.dateDeserialize(day.from).getTime());
 									var dTo   = tools.genId(tools.dateDeserialize(day.to).getTime());
+									
+									if (dFrom.getDate() <= 3 && dFrom.getMonth() == 0)
+									 	dFrom.setDate(dFrom.getDate()+4);
+									if (dTo.getDate() <= 3 && dTo.getMonth() == 0)
+									 	dTo.setDate(dTo.getDate()+4);
+									 	
 									var cFrom = $(element).find('#d'+i+'-'+ dFrom).offset().left;
 									var cTo = $(element).find('#d'+i+'-'+ dTo).offset().left;
 									var dl = Math.round((cTo-cFrom)/tools.getCellSize())+1;
