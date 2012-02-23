@@ -922,15 +922,18 @@
 									.append(_bar);
 								break;
 								case 'weeks':
-								case 'months':								
-									var dFrom = tools.genId(tools.dateDeserialize(day.from).getTime());
-									var dTo   = tools.genId(tools.dateDeserialize(day.to).getTime());
+								case 'months':	
+									var dtFrom = tools.dateDeserialize(day.from);
+									var dtTo   = tools.dateDeserialize(day.to); 						
+
+									if (dtFrom.getDate() <= 3 && dtFrom.getMonth() == 0)
+									 	dtFrom.setDate(dtFrom.getDate()+4);
+									if (dtTo.getDate() <= 3 && dtTo.getMonth() == 0)
+									 	dtTo.setDate(dtTo.getDate()+4);
 									
-									if (dFrom.getDate() <= 3 && dFrom.getMonth() == 0)
-									 	dFrom.setDate(dFrom.getDate()+4);
-									if (dTo.getDate() <= 3 && dTo.getMonth() == 0)
-									 	dTo.setDate(dTo.getDate()+4);
-									 	
+									var dFrom = tools.genId(dtFrom.getTime());
+									var dTo   = tools.genId(dtTo.getTime());
+
 									var cFrom = $(element).find('#d'+i+'-'+ dFrom).offset().left;
 									var cTo = $(element).find('#d'+i+'-'+ dTo).offset().left;
 									var dl = Math.round((cTo-cFrom)/tools.getCellSize())+1;
@@ -941,7 +944,7 @@
 											 day.desc ? day.desc : '',
 											 day.label ? day.label : ''
 											);
-									$(element).find('#d'+i+'-'+ tools.genId(tools.dateDeserialize(day.from).getTime(), element.scaleStep))
+									$(element).find('#d'+i+'-'+ tools.genId(dtFrom.getTime(), element.scaleStep))
 									.append(_bar);
 								break;
 								default:
