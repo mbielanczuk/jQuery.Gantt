@@ -24,7 +24,7 @@
 			scale: 'days',
 			maxScale: 'months',
 			minScale: 'hours',
-			waitText: 'Please wait...'			
+			waitText: 'Please wait...'
 		};
 
 		$.extend($.expr[':'],{
@@ -274,7 +274,7 @@
 
 				var today = new Date();
 				today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-				var hollydays = settings.holidays ? settings.holidays.join() : '';
+				var holidayItems = settings.holidays ? settings.holidays.join() : '';
 
 				switch (settings.scale)
 				{
@@ -328,13 +328,13 @@
 							var getDay = day.getDay();
 							var day_class = dowClass[rgetDay];
 							var getTime = day.getTime();
-							if (hollydays.indexOf((new Date(rday.getFullYear(), rday.getMonth(), rday.getDate())).getTime())>-1)
+							if (holidayItems.indexOf((new Date(rday.getFullYear(), rday.getMonth(), rday.getDate())).getTime())>-1)
 
-								 day_class = "hollyday";
+								 day_class = "holiday";
 	
 							if (rgetDay != getDay) {
 								
-								var day_class2 = (today - day == 0) ? ' today' : (hollydays.indexOf(getTime)>-1) ? "hollyday"  : dowClass[getDay];
+								var day_class2 = (today - day == 0) ? ' today' : (holidayItems.indexOf(getTime)>-1) ? "hollyday"  : dowClass[getDay];
 								
 								daysStr += '<div class="row day '+day_class2+'" '
 								        +  ' style="width: ' + tools.getCellSize() * hoursInDay + 'px;"> '
@@ -377,7 +377,7 @@
 		
 						var day_class = dowClass[day.getDay()];
 		
-						if (hollydays.indexOf((new Date(day.getFullYear(), day.getMonth(), day.getDate())).getTime()) > -1)
+						if (holidayItems.indexOf((new Date(day.getFullYear(), day.getMonth(), day.getDate())).getTime()) > -1)
 							day_class = "hollyday";
 		
 						daysStr += '<div class="row day ' + day_class + '" '
@@ -413,7 +413,7 @@
 								{
 									var day = range[x];	
 									var todayCls = gridDowClass[day.getDay()];
-									if (hollydays.indexOf((new Date(day.getFullYear(), day.getMonth(), day.getDate())).getTime())>-1)
+									if (holidayItems.indexOf((new Date(day.getFullYear(), day.getMonth(), day.getDate())).getTime())>-1)
 										 todayCls = " hollyday";
 									dRow += '<div class="row day' + todayCls + '" id="d'+i+'-'+ tools.genId( day.getTime() ) +'" ></div>';
 								};
@@ -640,8 +640,8 @@
 							
 							var getDay = rday.getDay();
 							var day_class = dowClass[getDay];
-							if (hollydays.indexOf((new Date(rday.getFullYear(), rday.getMonth(), rday.getDate())).getTime()) > -1)
-								 day_class = "hollyday";
+							if (holidayItems.indexOf((new Date(rday.getFullYear(), rday.getMonth(), rday.getDate())).getTime()) > -1)
+								 day_class = "holiday";
 	
 							daysStr += '<div class="row day ' + day_class + '" '
 							        +  ' id="dh-' + tools.genId(rday.getTime()) +' "> '
@@ -692,8 +692,8 @@
 								{
 									day = range[x];
 									var todayCls = gridDowClass[day.getDay()];
-									if (hollydays.indexOf((new Date(day.getFullYear(), day.getMonth(), day.getDate())).getTime()) > -1)
-										todayCls = " hollyday";
+									if (holidayItems.indexOf((new Date(day.getFullYear(), day.getMonth(), day.getDate())).getTime()) > -1)
+										todayCls = " holiday";
 									dRow += '<div class="row day ' + todayCls + '" id="d'+i+'-'+ tools.genId( day.getTime() ) +'"></div>';
 								};
 								dataPanel.append($(dRow+'</div>'));
