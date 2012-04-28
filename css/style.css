@@ -283,7 +283,7 @@
 .fn-gantt .navigate .nav-slider-button {
 	width: 17px;
 	height: 21px;
-	background: url(img/slider_handle.png);
+	background: url(../img/slider_handle.png);
 	left: 0px;
 	top: 0px;
 	margin: -4px 0 0 0;	
@@ -314,7 +314,7 @@
 	width: 20px;
 	height: 20px;
 	font-size: 0px;
-	background: #595959 url(img/icon_sprite.png) !important;
+	background: #595959 url(../img/icon_sprite.png) !important;
 	border: 1px solid #454546;
 	cursor: pointer;
 	vertical-align: top;
@@ -390,7 +390,7 @@
 }
 
 .fn-gantt-loader {
-	background-image: url(img/loader_bg.png);
+	background-image: url(../img/loader_bg.png);
     z-index: 30;
 }
 

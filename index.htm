@@ -1,36 +1,468 @@
 <!doctype html>
-<html lang="en-us">
+<html lang="en-au">
     <head>
-        <title>Gantt</title>
+        <title>jQuery.Gantt</title>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" >
-        <meta content="Marek Bielanczuk" name="Author" />
-		<script src="js/jquery-1.5.1.min.js"></script>
-		<script src="js/jquery.fn.gantt.js"></script>
-        <link rel="stylesheet" href="style.css" />
+        <link rel="stylesheet" href="css/style.css" />
+        <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" />
+        <link rel="stylesheet" href="http://taitems.github.com/UX-Lab/core/css/prettify.css" />
 		<style type="text/css">
 			body {
 				font-family: Helvetica, Arial, sans-serif;
 				font-size: 13px;
+				padding: 0 0 50px 0;
 			}
 			.contain {
 				width: 800px;
 				margin: 0 auto;
 			}
+			h1 {
+				margin: 40px 0 20px 0;
+			}
+			h2 {
+				font-size: 1.5em;
+				padding-bottom: 3px;
+				border-bottom: 1px solid #DDD;
+				margin-top: 50px;
+				margin-bottom: 25px;
+			}
+			table th:first-child {
+				width: 150px;
+			}
 		</style>
-        <script>
-        <!--
-	        jQuery(function () {
-	        	var dataPath = location.href.substring(0, location.href.lastIndexOf('/')+1);
-	        	//$(".gantt").gantt({source: dataPath + "js/dataHours.js", navigate: 'scroll', scale: 'hours', maxScale: 'hours', minScale: 'hours', hollydays: ["\/Date(1293836400000)\/","\/Date(1294268400000)\/","\/Date(1303596000000)\/","\/Date(1306274400000)\/","\/Date(1304200800000)\/","\/Date(1304373600000)\/","\/Date(1307829600000)\/","\/Date(1308780000000)\/","\/Date(1313359200000)\/","\/Date(1320105600000)\/","\/Date(1320966000000)\/","\/Date(1324767600000)\/","\/Date(1324854000000)\/","\/Date(1325372400000)\/","\/Date(1325804400000)\/","\/Date(1333836000000)\/","\/Date(1336514400000)\/","\/Date(1335823200000)\/","\/Date(1335996000000)\/","\/Date(1338069600000)\/","\/Date(1339020000000)\/","\/Date(1344981600000)\/","\/Date(1351724400000)\/","\/Date(1352588400000)\/","\/Date(1356390000000)\/","\/Date(1356476400000)\/"]});
-	        	$(".gantt").gantt({source: dataPath + "js/dataDays.js", navigate: 'scroll', scale: 'days', maxScale: 'weeks', minScale: 'days', hollydays: ["\/Date(1293836400000)\/","\/Date(1294268400000)\/","\/Date(1303596000000)\/","\/Date(1306274400000)\/","\/Date(1304200800000)\/","\/Date(1304373600000)\/","\/Date(1307829600000)\/","\/Date(1308780000000)\/","\/Date(1313359200000)\/","\/Date(1320105600000)\/","\/Date(1320966000000)\/","\/Date(1324767600000)\/","\/Date(1324854000000)\/","\/Date(1325372400000)\/","\/Date(1325804400000)\/","\/Date(1333836000000)\/","\/Date(1336514400000)\/","\/Date(1335823200000)\/","\/Date(1335996000000)\/","\/Date(1338069600000)\/","\/Date(1339020000000)\/","\/Date(1344981600000)\/","\/Date(1351724400000)\/","\/Date(1352588400000)\/","\/Date(1356390000000)\/","\/Date(1356476400000)\/"]});
-	        });
-        -->
-        </script>
     </head>
     <body>
+
 		<div class="contain">
-			<div class="gantt" />
+
+			<h1>
+				jQuery.Gantt
+				<small>&mdash; Draw Gantt charts with the famous jQuery ease of development</small>
+			</h1>
+
+	    	<h2>
+	    		Example
+	    	</h2>
+				
+			<div class="gantt"></div>
+
+
+
+			<h2>
+				Gantt Configuration
+			</h2>
+
+
+<pre class="prettyprint">
+$(".selector").gantt({
+	source: "ajax/data.json",
+	scale: "weeks",
+	minScale: "weeks",
+	maxScale: "months"
+});
+</pre>
+
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>
+							Parameter
+						</th>
+						<th>
+							Default
+						</th>
+						<th>
+							Accepts Type
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							<code>source</code>
+						</td>
+						<td>
+							null
+						</td>
+						<td>
+							Array, String (url)
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>itemsPerPage</code>
+						</td>
+						<td>
+							7
+						</td>
+						<td>
+							Number
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>months</code>
+						</td>
+						<td>
+							["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+						</td>
+						<td>
+							Array
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>days</code>
+						</td>
+						<td>
+							["S", "M", "T", "W", "T", "F", "S"]
+						</td>
+						<td>
+							Array
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>navigate</code>
+						</td>
+						<td>
+							"buttons"
+						</td>
+						<td>
+							String ("buttons","scroll")
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>scale</code>
+						</td>
+						<td>
+							"days"
+						</td>
+						<td>
+							String
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>maxScale</code>
+						</td>
+						<td>
+							"months"
+						</td>
+						<td>
+							String
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>minScale</code>
+						</td>
+						<td>
+							"hours"
+						</td>
+						<td>
+							String
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>waitText</code>
+						</td>
+						<td>
+							"Please Wait..."
+						</td>
+						<td>
+							String
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+
+
+
+			<h2>
+				Source Configuration
+			</h2>
+
+<pre class="prettyprint">
+source: [{
+	name: "Example",
+	desc: "Lorem ipsum dolor sit amet.",
+	values: [ ... ]
+}]
+</pre>
+
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>
+							Parameter
+						</th>
+						<th>
+							Default
+						</th>
+						<th>
+							Accepts Type
+						</th>
+						<th>
+							Meaning
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							<code>name</code>
+						</td>
+						<td>
+							null
+						</td>
+						<td>
+							String
+						</td>
+						<td>
+							Bold value in the left-most column of the gantt row.
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>desc</code>
+						</td>
+						<td>
+							null
+						</td>
+						<td>
+							String
+						</td>
+						<td>
+							Secondary value in the gantt row.
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>values</code>
+						</td>
+						<td>
+							null
+						</td>
+						<td>
+							Array
+						</td>
+						<td>
+							Collection of date ranges for gantt items. See next table.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+
+			<h2>
+				Value Configuration
+			</h2>
+
+<pre class="prettyprint">
+values: [{
+	to: "/Date(1328832000000)/",
+	from: "/Date(1333411200000)/",
+	desc: "Something",
+	label: "Example Value",
+	customClass: "ganttRed",
+	dataObj: foo.bar[i]
+}]
+</pre>
+
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>
+							Parameter
+						</th>
+						<th>
+							Accepts Type
+						</th>
+						<th>
+							Meaning
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							<code>to</code>
+						</td>
+						<td>
+							String (Date)
+						</td>
+						<td>
+							-
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>from</code>
+						</td>
+						<td>
+							String (Date)
+						</td>
+						<td>
+							-
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>desc</code>
+						</td>
+						<td>
+							String
+						</td>
+						<td>
+							Text that appears on hover, I think?
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>label</code>
+						</td>
+						<td>
+							String
+						</td>
+						<td>
+							Appears on the gantt item.
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>customClass</code>
+						</td>
+						<td>
+							String
+						</td>
+						<td>
+							Custom class to be applied to the gantt item.
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>dataObj</code>
+						</td>
+						<td>
+							All
+						</td>
+						<td>
+							A data object that is applied directly to the gantt item.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
 		</div>
+
     </body>
+	<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+	<script src="js/jquery.fn.gantt.js"></script>
+	<script src="http://twitter.github.com/bootstrap/assets/js/bootstrap-tooltip.js"></script>
+	<script src="http://twitter.github.com/bootstrap/assets/js/bootstrap-popover.js"></script>
+	<script src="http://taitems.github.com/UX-Lab/core/js/prettify.js"></script>
+    <script>
+
+		$(function() {
+
+			"use strict";
+
+			$(".gantt").gantt({
+				source: [{
+					name: "Sprint 0",
+					desc: "Analysis",
+					values: [{
+						from: "/Date(1320192000000)/",
+						to: "/Date(1322401600000)/",
+						label: "Requirement Gathering", 
+						customClass: "ganttRed",
+
+					}]
+				},{
+					name: " ",
+					desc: "Scoping",
+					values: [{
+						from: "/Date(1322611200000)/",
+						to: "/Date(1323302400000)/",
+						label: "Scoping", 
+						customClass: "ganttRed"
+					}]
+				},{
+					name: "Sprint 1",
+					desc: "Development",
+					values: [{
+						from: "/Date(1323802400000)/",
+						to: "/Date(1325685200000)/",
+						label: "Development", 
+						customClass: "ganttGreen"
+					}]
+				},{
+					name: " ",
+					desc: "Showcasing",
+					values: [{
+						from: "/Date(1325685200000)/",
+						to: "/Date(1325695200000)/",
+						label: "Showcasing", 
+						customClass: "ganttBlue"
+					}]
+				},{
+					name: "Sprint 2",
+					desc: "Development",
+					values: [{
+						from: "/Date(1326785200000)/",
+						to: "/Date(1325785200000)/",
+						label: "Development", 
+						customClass: "ganttGreen"
+					}]
+				},{
+					name: " ",
+					desc: "Showcasing",
+					values: [{
+						from: "/Date(1328785200000)/",
+						to: "/Date(1328905200000)/",
+						label: "Showcasing", 
+						customClass: "ganttBlue"
+					}]
+				},{
+					name: "Release Stage",
+					desc: "Training",
+					values: [{
+						from: "/Date(1330011200000)/",
+						to: "/Date(1336611200000)/",
+						label: "Training", 
+						customClass: "ganttOrange"
+					}]
+				},{
+					name: " ",
+					desc: "Deployment",
+					values: [{
+						from: "/Date(1336611200000)/",
+						to: "/Date(1336711200000)/",
+						label: "Deployment", 
+						customClass: "ganttOrange"
+					}]
+				}],
+				navigate: "scroll",
+				scale: "weeks",
+				maxScale: "months",
+				minScale: "days",
+				itemsPerPage: 10
+			});
+
+			$(".gantt").popover({
+				selector: ".bar",
+				title: "I'm a popover",
+				content: "And I'm the content of said popover."
+			});
+
+			prettyPrint();
+
+		});
+
+    </script>
 </html>
