@@ -837,10 +837,11 @@
 				}
 				return $('<div class="bottom"/>').append(ganttNavigate);
 			},
-			createProgressBar: function(days, cls, desc, label) {
+			createProgressBar: function(days, bID, cls, desc, label) {
 				var cellWidth = tools.getCellSize();
 				var barMarg = tools.getProgressBarMargin() || 0;
-				var bar = $("<div class='bar'><div class='label'>"+label+"</div></div>")
+				var barId = bID ? "id='" + bID + "'" : "";
+				var bar = $("<div "+ barId +" class='bar'><div class='label'>"+label+"</div></div>")
 						.addClass( cls )
 						.css({
 							width: ((cellWidth * days) - barMarg)
@@ -911,9 +912,9 @@
 									var cFrom = $(element).find('#d'+i+'-'+ dFrom).offset().left;
 									var cTo = $(element).find('#d'+i+'-'+ dTo).offset().left;
 									var dl = Math.floor((cTo-cFrom)/tools.getCellSize())+1;
-
 									_bar = core.createProgressBar(
 												dl,
+												day.id ? day.id : '',
 												day.customClass ? day.customClass : '',
 												day.desc ? day.desc : '',
 												day.label ? day.label : ''
@@ -940,6 +941,7 @@
 
 									_bar = core.createProgressBar(
 											 dl,
+											 day.id ? day.id : '',
 											 day.customClass ? day.customClass : '',
 											 day.desc ? day.desc : '',
 											 day.label ? day.label : ''
@@ -953,6 +955,7 @@
 									var dl = Math.floor(((dTo/1000)-(dFrom/1000))/86400) + 1;
 									_bar = core.createProgressBar(
 												dl,
+												day.id ? day.id : '',
 												day.customClass ? day.customClass : '',
 												day.desc ? day.desc : '',
 												day.label ? day.label : ''
@@ -1442,7 +1445,7 @@
 				return ret;
 			},
 			getPageHeight: function(element) {
-				return element.pageNum+1 == element.pageCount ? rowsOnLastPage*tools.getCellSize() : settings.itemsPerPage*tools.getCellSize();
+				return element.pageNum+1 == element.pageCount ? element.rowsOnLastPage*tools.getCellSize() : settings.itemsPerPage*tools.getCellSize();
 			},
 			_getProgressBarMargin: null,
 			getProgressBarMargin: function() {
