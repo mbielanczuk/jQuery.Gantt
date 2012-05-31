@@ -1,12 +1,5 @@
-/**
-*
-* JQuery fn.gantt gantt chart plugin v1.2.0
-* Copyright 2011 by Marek Bielańczuk
-* http://mbielanczuk.com/
-* Released under the MIT and GPL Licenses.
-*
-* Last Modified: Fri Feb 03 2012 8:57:00 +0800
-*/
+/*jshint shadow:true*/
+/*globals jQuery, alert*/
 
 (function ($) {
 
@@ -14,6 +7,7 @@
 
     $.fn.gantt = function (options) {
 
+        var cookieKey = "jquery.fn.gantt";
         var scales = ["hours", "days", "weeks", "months"];
 
         var settings = {
@@ -24,18 +18,22 @@
             startPos: new Date(),
             navigate: "buttons",
             scale: "days",
+            useCookie: false,
             maxScale: "months",
             minScale: "hours",
-            waitText: "Please wait..."
+            waitText: "Please wait...",
+            onItemClick: function (data) { return; },
+            onAddClick: function (data) { return; },
+            scrollToToday: true
         };
 
         $.extend($.expr[":"], {
             findday: function (a, i, m) {
-                var cd = new Date(parseInt(m[3]));
+                var cd = new Date(parseInt(m[3],10));
                 var id = $(a).attr("id");
                 id = id ? id : "";
                 var si = id.indexOf("-") + 1;
-                var ed = new Date(parseInt(id.substring(si, id.length)));
+                var ed = new Date(parseInt(id.substring(si, id.length),10));
                 cd = new Date(cd.getFullYear(), cd.getMonth(), cd.getDate());
                 ed = new Date(ed.getFullYear(), ed.getMonth(), ed.getDate());
                 return cd.getTime() === ed.getTime();
@@ -44,7 +42,7 @@
 
         $.extend($.expr[":"], {
             findweek: function (a, i, m) {
-                var cd = new Date(parseInt(m[3]));
+                var cd = new Date(parseInt(m[3],10));
                 var id = $(a).attr("id");
                 id = id ? id : "";
                 var si = id.indexOf("-") + 1;
@@ -56,7 +54,7 @@
 
         $.extend($.expr[":"], {
             findmonth: function (a, i, m) {
-                var cd = new Date(parseInt(m[3]));
+                var cd = new Date(parseInt(m[3],10));
                 cd = cd.getFullYear() + "-" + cd.getMonth();
                 var id = $(a).attr("id");
                 id = id ? id : "";
@@ -66,6 +64,30 @@
             }
         });
 
+        Date.prototype.getWeekId = function () {
+            var y = this.getFullYear();
+            var w = this.getDayForWeek().getWeekOfYear();
+            var m = this.getMonth();
+            if (m === 11 && w === 1) {
+                y++;
+            }
+            return 'dh-' + y + "-" + w;
+        };
+
+
+
+        Date.prototype.genRepDate = function () {
+            switch (settings.scale) {
+                case "hours":
+                    return this.getTime();
+                case "weeks":
+                    return this.getDayForWeek().getTime();
+                case "months":
+                    return new Date(this.getFullYear(), this.getMonth(), 1).getTime();
+                default:
+                    return this.getTime();
+            }
+        };
         Date.prototype.getDayOfYear = function () {
             var fd = new Date(this.getFullYear(), 0, 0);
             var sd = new Date(this.getFullYear(), this.getMonth(), this.getDate());
@@ -74,10 +96,12 @@
         Date.prototype.getWeekOfYear = function () {
             var ys = new Date(this.getFullYear(), 0, 1);
             var sd = new Date(this.getFullYear(), this.getMonth(), this.getDate());
-            if (ys.getDay() > 3)
-                ys = new Date(sd.getFullYear(), 0, 7 - ys.getDay());
+            if (ys.getDay() > 3) {
+                ys = new Date(sd.getFullYear(), 0, (7 - ys.getDay()));
+            }
             var daysCount = sd.getDayOfYear() - ys.getDayOfYear();
             return Math.ceil(daysCount / 7);
+
         };
         Date.prototype.getDaysInMonth = function () {
             return 32 - new Date(this.getFullYear(), this.getMonth(), 32).getDate();
@@ -88,11 +112,10 @@
             var dt = new Date(this.valueOf());
             dt.setDate(dt.getDate() + (6 - dt.getDay()));
 
-            if (df.getMonth() === dt.getMonth())
+            if (df.getMonth() === dt.getMonth()) {
                 return true;
-            else {
-                return (df.getMonth() === this.getMonth() && dt.getDate() < 4)
-					|| (df.getMonth() != this.getMonth() && dt.getDate() >= 4);
+            } else {
+                return (df.getMonth() === this.getMonth() && dt.getDate() < 4) || (df.getMonth() !== this.getMonth() && dt.getDate() >= 4);
             }
         };
         Date.prototype.getDayForWeek = function () {
@@ -100,8 +123,7 @@
             df.setDate(df.getDate() - df.getDay());
             var dt = new Date(this.valueOf());
             dt.setDate(dt.getDate() + (6 - dt.getDay()));
-            if ((df.getMonth() === dt.getMonth())
-			 || (df.getMonth() != dt.getMonth() && dt.getDate() >= 4)) {
+            if ((df.getMonth() === dt.getMonth()) || (df.getMonth() !== dt.getMonth() && dt.getDate() >= 4)) {
                 return new Date(dt.setDate(dt.getDate() - 3));
             } else {
                 return new Date(df.setDate(df.getDate() + 3));
@@ -112,6 +134,19 @@
         * Core functions for creating grid.
         */
         var core = {
+
+            elementFromPoint: function (x, y) {
+
+                if ($.browser.msie) {
+                    x -= $(document).scrollLeft();
+                    y -= $(document).scrollTop();
+                } else {
+                    x -= window.pageXOffset;
+                    y -= window.pageYOffset;
+                }
+
+                return document.elementFromPoint(x, y);
+            },
             /**
             * Create header
             */
@@ -138,14 +173,16 @@
                 element.dateStart = tools.getMinDate(element);
                 element.dateEnd = tools.getMaxDate(element);
 
-                core.render(element);
+
+                // core.render(element);
                 core.waitToggle(element, true, function () { core.render(element); });
             },
             render: function (element) {
                 var content = $('<div class="fn-content"/>');
-
-                content.append(core.leftPanel(element));
-                var $rightPanel = core.rightPanel(element);
+                var $leftPanel = core.leftPanel(element);
+                content.append($leftPanel);
+                var $rightPanel = core.rightPanel(element, $leftPanel);
+                var mLeft, hPos;
 
                 content.append($rightPanel);
                 content.append(core.navigation(element));
@@ -156,49 +193,84 @@
 
                 $(element).html(element.gantt);
 
-                element.scrollNavigation.panelMargin = parseInt($dataPanel.css("margin-left").replace("px", ""));
+                element.scrollNavigation.panelMargin = parseInt($dataPanel.css("margin-left").replace("px", ""),10);
                 element.scrollNavigation.panelMaxPos = ($dataPanel.width() - $rightPanel.width());
 
                 element.scrollNavigation.canScroll = ($dataPanel.width() > $rightPanel.width());
 
                 core.markNow(element);
-                core.fillData(element);
+                core.fillData(element, $dataPanel, $leftPanel);
 
-                var d = Math.round((settings.startPos / 1000 - element.dateStart / 1000) / 86400) - 2;
-                if (d > 0 && element.hPosition != 0) {
-                    if (element.scaleOldWidth) {
-                        var mLeft = ($dataPanel.width() - $rightPanel.width());
-                        var hPos = mLeft * element.hPosition / element.scaleOldWidth;
-                        hPos = hPos > 0 ? 0 : hPos;
-                        $dataPanel.css({ "margin-left": hPos + "px" });
-                        element.scrollNavigation.panelMargin = hPos;
-                        element.hPosition = hPos;
-                        element.scaleOldWidth = null;
-                    } else {
-                        $dataPanel.css({ "margin-left": element.hPosition + "px" });
-                        element.scrollNavigation.panelMargin = element.hPosition;
+                if (settings.useCookie) {
+                    var sc = $.cookie(this.cookieKey + "ScrollPos");
+                    if (sc) {
+                        element.hPosition = sc;
                     }
-                    core.repositionLabel(element);
-                } else {
-                    core.repositionLabel(element);
                 }
 
+                if (settings.scrollToToday) {
+                    var startPos = Math.round((settings.startPos / 1000 - element.dateStart / 1000) / 86400) - 2;
+                    if ((startPos > 0 && element.hPosition !== 0)) {
+                        if (element.scaleOldWidth) {
+                            mLeft = ($dataPanel.width() - $rightPanel.width());
+                            hPos = mLeft * element.hPosition / element.scaleOldWidth;
+                            hPos = hPos > 0 ? 0 : hPos;
+                            $dataPanel.css({ "margin-left": hPos + "px" });
+                            element.scrollNavigation.panelMargin = hPos;
+                            element.hPosition = hPos;
+                            element.scaleOldWidth = null;
+                        } else {
+                            $dataPanel.css({ "margin-left": element.hPosition + "px" });
+                            element.scrollNavigation.panelMargin = element.hPosition;
+                        }
+                        core.repositionLabel(element);
+                    } else {
+                        core.repositionLabel(element);
+                    }
+                } else {
+                    if ((element.hPosition !== 0)) {
+                        if (element.scaleOldWidth) {
+                            mLeft = ($dataPanel.width() - $rightPanel.width());
+                            hPos = mLeft * element.hPosition / element.scaleOldWidth;
+                            hPos = hPos > 0 ? 0 : hPos;
+                            $dataPanel.css({ "margin-left": hPos + "px" });
+                            element.scrollNavigation.panelMargin = hPos;
+                            element.hPosition = hPos;
+                            element.scaleOldWidth = null;
+                        } else {
+                            $dataPanel.css({ "margin-left": element.hPosition + "px" });
+                            element.scrollNavigation.panelMargin = element.hPosition;
+                        }
+                        core.repositionLabel(element);
+                    } else {
+                        core.repositionLabel(element);
+                    }
+                }
+
+                $dataPanel.css({ height: $leftPanel.height() });
                 core.waitToggle(element, false);
             },
             leftPanel: function (element) {
                 /* Left panel */
                 var ganttLeftPanel = $('<div class="leftPanel"/>')
-					.append($('<div class="row spacer"/>')
-					.css("height", tools.getCellSize() * element.headerRows + "px")
-					.css("width", "100%"));
+                    .append($('<div class="row spacer"/>')
+                    .css("height", tools.getCellSize() * element.headerRows + "px")
+                    .css("width", "100%"));
 
+                var entries = [];
                 $.each(element.data, function (i, entry) {
                     if (i >= element.pageNum * settings.itemsPerPage && i < (element.pageNum * settings.itemsPerPage + settings.itemsPerPage)) {
-                        ganttLeftPanel
-							.append($('<div class="row name row' + i + ' "/>').append($('<span class="fn-label"/>').html(entry.name)))
-							.append($('<div class="row desc row' + i + ' "/>').append($('<span class="fn-label"/>').html(entry.desc)));
+                        entries.push('<div class="row name row' + i + '" id="rowheader' + i + '" offset="' + i * tools.getCellSize() + '">');
+                        entries.push('<span class="fn-label ' + entry.cssClass + '">' + entry.name + '</span>');
+                        entries.push('</div>');
+
+                        entries.push('<div class="row desc row' + i + ' " id="RowdId_' + i + '" data-id="' + entry.id + '">');
+                        entries.push('<span class="fn-label ' + entry.cssClass + '">' + entry.desc + '</span>');
+                        entries.push('</div>');
+
                     }
                 });
+                ganttLeftPanel.append(entries.join(""));
                 return ganttLeftPanel;
             },
             dataPanel: function (element, width) {
@@ -208,64 +280,91 @@
                 */
                 var mousewheelevt = (/Firefox/i.test(navigator.userAgent)) ? "DOMMouseScroll" : "mousewheel";
 
-                if (document.attachEvent)
+                if (document.attachEvent) {
                     element.attachEvent("on" + mousewheelevt, function (e) { core.wheelScroll(element, e); });
-                else if (document.addEventListener)
+                } else if (document.addEventListener) {
                     element.addEventListener(mousewheelevt, function (e) { core.wheelScroll(element, e); }, false);
-                /*
-                * Dragging datapanel 
-                */
+                }
 
-                dataPanel.mousedown(function (e) {
-                    if (e.which != 1)
-                        return true;
-                    if (e.preventDefault) e.preventDefault();
-                    element.scrollNavigation.panelMouseDown = true;
-                    core.mouseScroll(element, e);
-                })
-					.mousemove(function (e) {
-					    if (element.scrollNavigation.panelMouseDown) {
-					        core.mouseScroll(element, e);
-					    }
-					});
 
-                $(document).mouseup(function (e) {
-                    if (e.which != 1)
-                        return true;
-                    element.scrollNavigation.panelMouseDown = false;
-                    element.scrollNavigation.mouseX = null;
-                    var $dataPanel = $(element).find(".fn-gantt .dataPanel");
-                    $dataPanel.css("cursor", "auto");
+                // addNEwClick
+                dataPanel.click(function (e) {
 
-                    core.repositionLabel(element);
+                    e.stopPropagation();
+                    var corrX, corrY;
+                    var leftpanel = $(element).find(".fn-gantt .leftPanel");
+                    var datapanel = $(element).find(".fn-gantt .dataPanel");
+                    switch (settings.scale) {
+                        case "weeks":
+                            corrY = tools.getCellSize() * 2;
+                            break;
+                        case "months":
+                            corrY = tools.getCellSize();
+                            break;
+                        case "hours":
+                        case "days":
+                            corrY = tools.getCellSize() * 3;
+                            break;
+                        default:
+                            corrY = tools.getCellSize() * 2;
+                            break;
+                    }
+
+                    // Adjust, so get middle of elm
+                    // corrY -= Math.floor(tools.getCellSize() / 2);
+
+                    //find column
+                    var col = core.elementFromPoint(e.pageX, datapanel.offset().top + corrY);
+                    // hit the label?
+                    if (col.className === "fn-label") {
+                        col = $(col.parentNode);
+                    } else {
+                        col = $(col);
+                    }
+
+                    var dt = col.attr("repdate");
+                    //find row
+                    var row = core.elementFromPoint(leftpanel.offset().left + leftpanel.width() - 10, e.pageY);
+                    // hit the label?
+                    if (row.className.indexOf("fn-label") === 0) {
+                        row = $(row.parentNode);
+                    } else {
+                        row = $(row);
+                    }
+                    var rowId = row.data().id;
+
+                    settings.onAddClick(dt, rowId);
                 });
                 return dataPanel;
             },
             // Creates Data container with header
-            rightPanel: function (element) {
+            rightPanel: function (element, leftPanel) {
 
                 var range = null;
                 var dowClass = [" sn", " wd", " wd", " wd", " wd", " wd", " sa"];
                 var gridDowClass = [" sn", "", "", "", "", "", " sa"];
 
-                var years = $('<div class="row"/>');
+                var yearArr = ['<div class="row"/>'];
                 var daysInYear = 0;
 
-                var months = $('<div class="row"/>');
+                var monthArr = ['<div class="row"/>'];
                 var daysInMonth = 0;
 
-                var daysStr = "";
+                var dayArr = [];
+
                 var hoursInDay = 0;
 
-                var dowStr = "";
-                var horStr = "";
+                var dowArr = [];
+
+                var horArr = [];
+
 
                 var today = new Date();
                 today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
                 var holidays = settings.holidays ? settings.holidays.join() : '';
 
                 switch (settings.scale) {
-                    // hours /////////////////////////////////////////////////////////////////////////////////////////    
+                    // hours /////////////////////////////////////////////////////////////////////////////////////////                      
                     case "hours":
 
                         range = tools.parseTimeRange(element.dateStart, element.dateEnd, element.scaleStep);
@@ -280,13 +379,14 @@
                             * Fill years
                             */
                             var rfy = rday.getFullYear();
-                            if (rfy != year) {
-                                years.html(years.html() +
-									$('<div class="row header year" style="width: '
-										+ tools.getCellSize() * daysInYear
-										+ 'px;"><div class="fn-label">'
-										+ year
-										+ '</div></div>'));
+                            if (rfy !== year) {
+                                yearArr.push(
+                                    ('<div class="row header year" style="width: '
+                                        + tools.getCellSize() * daysInYear
+                                        + 'px;"><div class="fn-label">'
+                                        + year
+                                        + '</div></div>'));
+
                                 year = rfy;
                                 daysInYear = 0;
                             }
@@ -296,12 +396,13 @@
                             * Fill months
                             */
                             var rm = rday.getMonth();
-                            if (rm != month) {
-                                months.append(
-									$('<div class="row header month" style="width: '
-									+ tools.getCellSize() * daysInMonth + 'px"><div class="fn-label">'
-									+ settings.months[month]
-									+ '</div></div>'));
+                            if (rm !== month) {
+                                monthArr.push(
+                                    ('<div class="row header month" style="width: '
+                                    + tools.getCellSize() * daysInMonth + 'px"><div class="fn-label">'
+                                    + settings.months[month]
+                                    + '</div></div>'));
+
                                 month = rm;
                                 daysInMonth = 0;
                             }
@@ -314,103 +415,85 @@
                             var getDay = day.getDay();
                             var day_class = dowClass[rgetDay];
                             var getTime = day.getTime();
-                            if (holidays.indexOf((new Date(rday.getFullYear(), rday.getMonth(), rday.getDate())).getTime()) > -1)
-
+                            if (holidays.indexOf((new Date(rday.getFullYear(), rday.getMonth(), rday.getDate())).getTime()) > -1) {
                                 day_class = "holiday";
-
-                            if (rgetDay != getDay) {
+                            }
+                            if (rgetDay !== getDay) {
 
                                 var day_class2 = (today - day === 0) ? ' today' : (holidays.indexOf(getTime) > -1) ? "holiday" : dowClass[getDay];
 
-                                daysStr += '<div class="row day ' + day_class2 + '" '
-								        + ' style="width: ' + tools.getCellSize() * hoursInDay + 'px;"> '
-								        + ' <div class="fn-label">' + day.getDate() + '</div></div>';
-
-                                dowStr += '<div class="row day ' + day_class2 + '" '
-								        + ' style="width: ' + tools.getCellSize() * hoursInDay + 'px;"> '
-								        + ' <div class="fn-label">' + settings.dow[getDay] + '</div></div>';
+                                dayArr.push('<div class="row day ' + day_class2 + '" '
+                                        + ' style="width: ' + tools.getCellSize() * hoursInDay + 'px;"> '
+                                        + ' <div class="fn-label">' + day.getDate() + '</div></div>');
+                                dowArr.push('<div class="row day ' + day_class2 + '" '
+                                        + ' style="width: ' + tools.getCellSize() * hoursInDay + 'px;"> '
+                                        + ' <div class="fn-label">' + settings.dow[getDay] + '</div></div>');
 
                                 day = rday;
                                 hoursInDay = 0;
                             }
                             hoursInDay++;
 
-                            horStr += '<div class="row day '
-									+ day_class
-									+ '" id="dh-'
-									+ rday.getTime()
-									+ '"> '
-									+ rday.getHours()
-									+ '</div>';
+                            horArr.push('<div class="row day '
+                                    + day_class
+                                    + '" id="dh-'
+                                    + rday.getTime()
+                                    + '"  offset="' + i * tools.getCellSize() + '"  repdate="' + rday.genRepDate() + '"> '
+                                    + rday.getHours()
+                                    + '</div>');
                         }
 
                         /*
                         * Last year
                         */
-                        years.html(years.html() +
-							'<div class="row header year" style="width: '
-							+ tools.getCellSize() * daysInYear + 'px;"><div class="fn-label">'
-							+ year
-							+ '</div></div>');
+
+                        yearArr.push(
+                            '<div class="row header year" style="width: '
+                            + tools.getCellSize() * daysInYear + 'px;"><div class="fn-label">'
+                            + year
+                            + '</div></div>');
                         /*
                         * Last month
                         */
-                        months.html(months.html() +
-							'<div class="row header month" style="width: '
-							+ tools.getCellSize() * daysInMonth + 'px"><div class="fn-label">'
-							+ settings.months[month]
-							+ '</div></div>');
+                        monthArr.push(
+                            '<div class="row header month" style="width: '
+                            + tools.getCellSize() * daysInMonth + 'px"><div class="fn-label">'
+                            + settings.months[month]
+                            + '</div></div>');
 
                         var day_class = dowClass[day.getDay()];
 
-                        if (holidays.indexOf((new Date(day.getFullYear(), day.getMonth(), day.getDate())).getTime()) > -1)
+                        if (holidays.indexOf((new Date(day.getFullYear(), day.getMonth(), day.getDate())).getTime()) > -1) {
                             day_class = "holiday";
+                        }
 
-                        daysStr += '<div class="row day ' + day_class + '" '
-						        + ' style="width: ' + tools.getCellSize() * hoursInDay + 'px;"> '
-						        + ' <div class="fn-label">' + day.getDate() + '</div></div>';
+                        dayArr.push('<div class="row day ' + day_class + '" '
+                                + ' style="width: ' + tools.getCellSize() * hoursInDay + 'px;"> '
+                                + ' <div class="fn-label">' + day.getDate() + '</div></div>');
 
-                        dowStr += '<div class="row day ' + day_class + '" '
-						        + ' style="width: ' + tools.getCellSize() * hoursInDay + 'px;"> '
-						        + ' <div class="fn-label">' + settings.dow[day.getDay()] + '</div></div>';
+                        dowArr.push('<div class="row day ' + day_class + '" '
+                                + ' style="width: ' + tools.getCellSize() * hoursInDay + 'px;"> '
+                                + ' <div class="fn-label">' + settings.dow[day.getDay()] + '</div></div>');
 
                         var dataPanel = core.dataPanel(element, range.length * tools.getCellSize());
 
                         /*
                         * Append panel elements
                         */
-                        dataPanel.append(years);
-                        dataPanel.append(months);
-                        dataPanel.append($('<div class="row"/>').html(daysStr));
-                        dataPanel.append($('<div class="row"/>').html(dowStr));
-                        dataPanel.append($('<div class="row"/>').html(horStr));
 
-                        /*
-                        * Generate grid
-                        */
-                        for (var i = 0; i < element.data.length; i++) {
-                            var entry = element.data[i];
-
-                            if (i >= element.pageNum * settings.itemsPerPage && i < (element.pageNum * settings.itemsPerPage + settings.itemsPerPage)) {
-                                var dRow = '<div class="row">';
-                                for (var x = 0; x < range.length; x++) {
-                                    var day = range[x];
-                                    var todayCls = gridDowClass[day.getDay()];
-                                    if (holidays.indexOf((new Date(day.getFullYear(), day.getMonth(), day.getDate())).getTime()) > -1)
-                                        todayCls = " holiday";
-                                    dRow += '<div class="row day' + todayCls + '" id="d' + i + '-' + tools.genId(day.getTime()) + '" ></div>';
-                                };
-                                //dataPanel.append(dRow);
-                                dataPanel.html(dataPanel.html() + dRow + '</div>');
-                            }
-                        }
+                        dataPanel.append(yearArr.join(""));
+                        dataPanel.append(monthArr.join(""));
+                        dataPanel.append($('<div class="row"/>').html(dayArr.join("")));
+                        dataPanel.append($('<div class="row"/>').html(dowArr.join("")));
+                        dataPanel.append($('<div class="row"/>').html(horArr.join("")));
 
                         break;
 
-                    // weeks /////////////////////////////////////////////////////////////////////////////////////////    
+                    // weeks /////////////////////////////////////////////////////////////////////////////////////////                      
                     case "weeks":
                         range = tools.parseWeeksRange(element.dateStart, element.dateEnd);
-
+                        yearArr = ['<div class="row"/>'];
+                        monthArr = ['<div class="row"/>'];
                         var year = range[0].getFullYear();
                         var month = range[0].getMonth();
                         var day = range[0];
@@ -420,13 +503,13 @@
                             /*
                             * Fill years
                             */
-                            if (rday.getFullYear() != year) {
-                                years.append(
-									$('<div class="row header year" style="width: '
-										+ tools.getCellSize() * daysInYear
-										+ 'px;"><div class="fn-label">'
-										+ year
-										+ '</div></div>'));
+                            if (rday.getFullYear() !== year) {
+                                yearArr.push(
+                                    ('<div class="row header year" style="width: '
+                                        + tools.getCellSize() * daysInYear
+                                        + 'px;"><div class="fn-label">'
+                                        + year
+                                        + '</div></div>'));
                                 year = rday.getFullYear();
                                 daysInYear = 0;
                             }
@@ -435,13 +518,13 @@
                             /*
                             * Fill months
                             */
-                            if (rday.getMonth() != month) {
-                                months.append(
-									$('<div class="row header month" style="width:'
-									   + tools.getCellSize() * daysInMonth
-									   + 'px;"><div class="fn-label">'
-									   + settings.months[month]
-									   + '</div></div>'));
+                            if (rday.getMonth() !== month) {
+                                monthArr.push(
+                                    ('<div class="row header month" style="width:'
+                                       + tools.getCellSize() * daysInMonth
+                                       + 'px;"><div class="fn-label">'
+                                       + settings.months[month]
+                                       + '</div></div>'));
                                 month = rday.getMonth();
                                 daysInMonth = 0;
                             }
@@ -449,57 +532,37 @@
                             /*
                             * Fill weeks
                             */
-                            daysStr += '<div class="row day wd" '
-									+ ' id="dh-' + rday.getFullYear() + '-' + rday.getWeekOfYear() + '"> '
-							        + ' <div class="fn-label">' + rday.getWeekOfYear() + '</div></div>';
+                            dayArr.push('<div class="row day wd" '
+                                    + ' id="' + rday.getWeekId() + '" offset="' + i * tools.getCellSize() + '" repdate="' + rday.genRepDate() + '"> '
+                                    + ' <div class="fn-label">' + rday.getWeekOfYear() + '</div></div>');
                         }
 
                         /*
                         * Last year
                         */
-                        years.append(
-							'<div class="row header year" style="width: '
-							+ tools.getCellSize() * daysInYear + 'px;"><div class="fn-label">'
-							+ year
-							+ '</div></div>');
+                        yearArr.push(
+                            '<div class="row header year" style="width: '
+                            + tools.getCellSize() * daysInYear + 'px;"><div class="fn-label">'
+                            + year
+                            + '</div></div>');
                         /*
                         * Last month
                         */
-                        months.append(
-							'<div class="row header month" style="width: '
-							+ tools.getCellSize() * daysInMonth + 'px"><div class="fn-label">'
-							+ settings.months[month]
-							+ '</div></div>');
+                        monthArr.push(
+                            '<div class="row header month" style="width: '
+                            + tools.getCellSize() * daysInMonth + 'px"><div class="fn-label">'
+                            + settings.months[month]
+                            + '</div></div>');
 
                         var dataPanel = core.dataPanel(element, range.length * tools.getCellSize());
 
-                        /*
-                        * Append panel elements
-                        */
-                        dataPanel.append(years);
-                        dataPanel.append(months);
-                        dataPanel.append($('<div class="row"/>').html(daysStr));
-                        dataPanel.append($('<div class="row"/>').html(dowStr));
 
-                        /*
-                        * Generate grid
-                        */
-                        for (var i = 0; i < element.data.length; i++) {
-                            var entry = element.data[i];
+                        dataPanel.append(yearArr.join("") + monthArr.join("") + dayArr.join("") + (dowArr.join("")));
 
-                            if (i >= element.pageNum * settings.itemsPerPage && i < (element.pageNum * settings.itemsPerPage + settings.itemsPerPage)) {
-                                var dRow = '<div class="row">';
-                                for (var x = 0; x < range.length; x++) {
-                                    day = range[x];
-                                    dRow += '<div class="row day" id="d' + i + '-' + tools.genId(day.getTime()) + '"></div>';
-                                };
-                                dataPanel.append($(dRow + '</div>'));
-                            }
-                        }
 
 
                         break;
-                    // months ////////////////////////////////////////////////////////////////////////////////////////    
+                    // months ////////////////////////////////////////////////////////////////////////////////////////                      
                     case 'months':
                         range = tools.parseMonthsRange(element.dateStart, element.dateEnd);
 
@@ -512,67 +575,53 @@
                             /*
                             * Fill years
                             */
-                            if (rday.getFullYear() != year) {
-                                years.append(
-									$('<div class="row header year" style="width: '
-										+ tools.getCellSize() * daysInYear
-										+ 'px;"><div class="fn-label">'
-										+ year
-										+ '</div></div>'));
+                            if (rday.getFullYear() !== year) {
+                                yearArr.push(
+                                    ('<div class="row header year" style="width: '
+                                        + tools.getCellSize() * daysInYear
+                                        + 'px;"><div class="fn-label">'
+                                        + year
+                                        + '</div></div>'));
                                 year = rday.getFullYear();
                                 daysInYear = 0;
                             }
                             daysInYear++;
+                            monthArr.push('<div class="row day wd" id="dh-' + tools.genId(rday.getTime()) + '" offset="' + i * tools.getCellSize() + '" repdate="' + rday.genRepDate() + '">' + (1 + rday.getMonth()) + '</div>');
 
-                            months.append($('<div class="row day wd" id="dh-' + tools.genId(rday.getTime()) + '" />').html(rday.getMonth() + 1));
+
 
                         }
 
                         /*
                         * Last year
                         */
-                        years.append(
-							'<div class="row header year" style="width: '
-							+ tools.getCellSize() * daysInYear + 'px;"><div class="fn-label">'
-							+ year
-							+ '</div></div>');
+                        yearArr.push(
+                            '<div class="row header year" style="width: '
+                            + tools.getCellSize() * daysInYear + 'px;"><div class="fn-label">'
+                            + year
+                            + '</div></div>');
                         /*
                         * Last month
                         */
-                        months.append(
-							'<div class="row header month" style="width: '
-							+ tools.getCellSize() * daysInMonth + 'px">"<div class="fn-label">'
-							+ settings.months[month]
-							+ '</div></div>');
+                        monthArr.push(
+                            '<div class="row header month" style="width: '
+                            + tools.getCellSize() * daysInMonth + 'px">"<div class="fn-label">'
+                            + settings.months[month]
+                            + '</div></div>');
 
                         var dataPanel = core.dataPanel(element, range.length * tools.getCellSize());
 
                         /*
                         * Append panel elements
                         */
-                        dataPanel.append(years);
-                        dataPanel.append(months);
-                        dataPanel.append($('<div class="row"/>').html(daysStr));
-                        dataPanel.append($('<div class="row"/>').html(dowStr));
+                        dataPanel.append(yearArr.join(""));
+                        dataPanel.append(monthArr.join(""));
+                        dataPanel.append($('<div class="row"/>').html(dayArr.join("")));
+                        dataPanel.append($('<div class="row"/>').html(dowArr.join("")));
 
-                        /*
-                        * Generate grid
-                        */
-                        for (var i = 0; i < element.data.length; i++) {
-                            var entry = element.data[i];
-
-                            if (i >= element.pageNum * settings.itemsPerPage && i < (element.pageNum * settings.itemsPerPage + settings.itemsPerPage)) {
-                                var dRow = '<div class="row">';
-                                for (var x = 0; x < range.length; x++) {
-                                    day = range[x];
-                                    dRow += '<div class="row day" id="d' + i + '-' + tools.genId(day.getTime()) + '" ></div>';
-                                };
-                                dataPanel.append($(dRow + '</div>'));
-                            }
-                        }
 
                         break;
-                    // days //////////////////////////////////////////////////////////////////////////////////////////    
+                    // days //////////////////////////////////////////////////////////////////////////////////////////                      
                     default:
                         range = tools.parseDateRange(element.dateStart, element.dateEnd);
 
@@ -585,13 +634,13 @@
                             /*
                             * Fill years
                             */
-                            if (rday.getFullYear() != year) {
-                                years.append(
-									$('<div class="row header year" style="width:'
-										+ tools.getCellSize() * daysInYear
-										+ 'px;"><div class="fn-label">'
-										+ year
-										+ '</div></div>'));
+                            if (rday.getFullYear() !== year) {
+                                yearArr.push(
+                                    ('<div class="row header year" style="width:'
+                                        + tools.getCellSize() * daysInYear
+                                        + 'px;"><div class="fn-label">'
+                                        + year
+                                        + '</div></div>'));
                                 year = rday.getFullYear();
                                 daysInYear = 0;
                             }
@@ -600,13 +649,13 @@
                             /*
                             * Fill months
                             */
-                            if (rday.getMonth() != month) {
-                                months.append(
-									$('<div class="row header month" style="width:'
-									   + tools.getCellSize() * daysInMonth
-									   + 'px;"><div class="fn-label">'
-									   + settings.months[month]
-									   + '</div></div>'));
+                            if (rday.getMonth() !== month) {
+                                monthArr.push(
+                                    ('<div class="row header month" style="width:'
+                                       + tools.getCellSize() * daysInMonth
+                                       + 'px;"><div class="fn-label">'
+                                       + settings.months[month]
+                                       + '</div></div>'));
                                 month = rday.getMonth();
                                 daysInMonth = 0;
                             }
@@ -614,195 +663,223 @@
 
                             var getDay = rday.getDay();
                             var day_class = dowClass[getDay];
-                            if (holidays.indexOf((new Date(rday.getFullYear(), rday.getMonth(), rday.getDate())).getTime()) > -1)
+                            if (holidays.indexOf((new Date(rday.getFullYear(), rday.getMonth(), rday.getDate())).getTime()) > -1) {
                                 day_class = "holiday";
+                            }
 
-                            daysStr += '<div class="row day ' + day_class + '" '
-							        + ' id="dh-' + tools.genId(rday.getTime()) + ' "> '
-							        + ' <div class="fn-label">' + rday.getDate() + '</div></div>';
-                            dowStr += '<div class="row day ' + day_class + '" '
-							        + ' id="dw-' + tools.genId(rday.getTime()) + '"> '
-							        + ' <div class="fn-label">' + settings.dow[getDay] + '</div></div>';
+                            dayArr.push('<div class="row day ' + day_class + '" '
+                                    + ' id="dh-' + tools.genId(rday.getTime()) + '" offset="' + i * tools.getCellSize() + '" repdate="' + rday.genRepDate() + '> '
+                                    + ' <div class="fn-label">' + rday.getDate() + '</div></div>');
+                            dowArr.push('<div class="row day ' + day_class + '" '
+                                    + ' id="dw-' + tools.genId(rday.getTime()) + '"  repdate="' + rday.genRepDate() + '"> '
+                                    + ' <div class="fn-label">' + settings.dow[getDay] + '</div></div>');
                         } //for
 
                         /*
                         * Last year
                         */
-                        years.append(
-							'<div class="row header year" style="width: '
-							+ tools.getCellSize() * daysInYear + 'px;"><div class="fn-label">'
-							+ year
-							+ '</div></div>');
+                        yearArr.push(
+                            '<div class="row header year" style="width: '
+                            + tools.getCellSize() * daysInYear + 'px;"><div class="fn-label">'
+                            + year
+                            + '</div></div>');
                         /*
                         * Last month
                         */
-                        months.append(
-							'<div class="row header month" style="width: '
-							+ tools.getCellSize() * daysInMonth + 'px"><div class="fn-label">'
-							+ settings.months[month]
-							+ '</div></div>');
+                        monthArr.push(
+                            '<div class="row header month" style="width: '
+                            + tools.getCellSize() * daysInMonth + 'px"><div class="fn-label">'
+                            + settings.months[month]
+                            + '</div></div>');
 
                         var dataPanel = core.dataPanel(element, range.length * tools.getCellSize());
 
                         /*
                         * Append panel elements
                         */
-                        dataPanel.append(years);
-                        dataPanel.append(months);
-                        dataPanel.append($('<div class="row"/>').html(daysStr));
-                        dataPanel.append($('<div class="row"/>').html(dowStr));
-
-                        /*
-                        * Generate grid
-                        */
-                        for (var i = 0; i < element.data.length; i++) {
-                            var entry = element.data[i];
-
-                            if (i >= element.pageNum * settings.itemsPerPage && i < (element.pageNum * settings.itemsPerPage + settings.itemsPerPage)) {
-                                var dRow = '<div class="row">';
-                                for (var x = 0; x < range.length; x++) {
-                                    day = range[x];
-                                    var todayCls = gridDowClass[day.getDay()];
-                                    if (holidays.indexOf((new Date(day.getFullYear(), day.getMonth(), day.getDate())).getTime()) > -1)
-                                        todayCls = " holiday";
-                                    dRow += '<div class="row day ' + todayCls + '" id="d' + i + '-' + tools.genId(day.getTime()) + '"></div>';
-                                };
-                                dataPanel.append($(dRow + '</div>'));
-                            }
-                        }
+                        dataPanel.append(yearArr.join(""));
+                        dataPanel.append(monthArr.join(""));
+                        dataPanel.append($('<div class="row"/>').html(dayArr.join("")));
+                        dataPanel.append($('<div class="row"/>').html(dowArr.join("")));
 
                         break;
                 }
 
                 return $('<div class="rightPanel"></div>').append(dataPanel);
             },
+
+
             navigation: function (element) {
                 var ganttNavigate = null;
                 if (settings.navigate === "scroll") {
                     ganttNavigate = $('<div class="navigate" />')
-						.append($('<div class="nav-slider" />')
-							.append($('<div class="nav-slider-left" />')
-								.append($('<span role="button" class="nav-link nav-page-back"/>')
-									.html('&lt;')
-									.click(function () {
-									    core.navigatePage(element, -1);
-									}))
-								.append($('<div class="page-number"/>')
-										.append($('<span/>')
-											.html(element.pageNum + 1 + ' of ' + element.pageCount)))
-								.append($('<span role="button" class="nav-link nav-page-next"/>')
-									.html('&gt;')
-									.click(function () {
-									    core.navigatePage(element, 1);
-									}))
-								.append($('<span role="button" class="nav-link nav-now"/>')
-									.html('&#9679;')
-									.click(function () {
-									    core.navigateTo(element, 'now');
-									}))
-								.append($('<span role="button" class="nav-link nav-prev-day"/>')
-									.html('&lt;')
-									.click(function () {
-									    core.navigateTo(element, tools.getCellSize());
-									})))
-							.append($('<div class="nav-slider-content" />')
-									.append($('<div class="nav-slider-bar" />')
-											.append($('<a class="nav-slider-button" />')
-												)
-												.mousedown(function (e) {
-												    if (e.preventDefault) e.preventDefault();
-												    element.scrollNavigation.scrollerMouseDown = true;
-												    core.sliderScroll(element, e);
-												})
-												.mousemove(function (e) {
-												    if (element.scrollNavigation.scrollerMouseDown) {
-												        core.sliderScroll(element, e);
-												    }
-												})
-											)
-										)
-							.append($('<div class="nav-slider-right" />')
-								.append($('<span role="button" class="nav-link nav-next-day"/>')
-									.html('&gt;')
-									.click(function () {
-									    core.navigateTo(element, tools.getCellSize() * -1);
-									}))
-								.append($('<span role="button" class="nav-link nav-zoomIn"/>')
-									.html('&#43;')
-									.click(function () {
-									    core.zoomInOut(element, -1)
-									}))
-								.append($('<span role="button" class="nav-link nav-zoomOut"/>')
-									.html('&#45;')
-									.click(function () {
-									    core.zoomInOut(element, 1);
-									}))
-									)
-								);
+                        .append($('<div class="nav-slider" />')
+                            .append($('<div class="nav-slider-left" />')
+                                .append($('<span role="button" class="nav-link nav-page-back"/>')
+                                    .html('&lt;')
+                                    .click(function () {
+                                        core.navigatePage(element, -1);
+                                    }))
+                                .append($('<div class="page-number"/>')
+                                        .append($('<span/>')
+                                            .html(element.pageNum + 1 + ' of ' + element.pageCount)))
+                                .append($('<span role="button" class="nav-link nav-page-next"/>')
+                                    .html('&gt;')
+                                    .click(function () {
+                                        core.navigatePage(element, 1);
+                                    }))
+                                .append($('<span role="button" class="nav-link nav-now"/>')
+                                    .html('&#9679;')
+                                    .click(function () {
+                                        core.navigateTo(element, 'now');
+                                    }))
+                                .append($('<span role="button" class="nav-link nav-prev-week"/>')
+                                    .html('&lt;&lt;')
+                                    .click(function () {
+                                        if (settings.scale === 'hours') {
+                                            core.navigateTo(element, tools.getCellSize() * 8);
+                                        } else if (settings.scale === 'days') {
+                                            core.navigateTo(element, tools.getCellSize() * 30);
+                                        } else if (settings.scale === 'weeks') {
+                                            core.navigateTo(element, tools.getCellSize() * 12);
+                                        } else if (settings.scale === 'months') {
+                                            core.navigateTo(element, tools.getCellSize() * 6);
+                                        }
+                                    }))
+                                .append($('<span role="button" class="nav-link nav-prev-day"/>')
+                                    .html('&lt;')
+                                    .click(function () {
+                                        if (settings.scale === 'hours') {
+                                            core.navigateTo(element, tools.getCellSize() * 4);
+                                        } else if (settings.scale === 'days') {
+                                            core.navigateTo(element, tools.getCellSize() * 7);
+                                        } else if (settings.scale === 'weeks') {
+                                            core.navigateTo(element, tools.getCellSize() * 4);
+                                        } else if (settings.scale === 'months') {
+                                            core.navigateTo(element, tools.getCellSize() * 3);
+                                        }
+                                    })))
+                            .append($('<div class="nav-slider-content" />')
+                                    .append($('<div class="nav-slider-bar" />')
+                                            .append($('<a class="nav-slider-button" />')
+                                                )
+                                                .mousedown(function (e) {
+                                                    if (e.preventDefault) {
+                                                        e.preventDefault();
+                                                    }
+                                                    element.scrollNavigation.scrollerMouseDown = true;
+                                                    core.sliderScroll(element, e);
+                                                })
+                                                .mousemove(function (e) {
+                                                    if (element.scrollNavigation.scrollerMouseDown) {
+                                                        core.sliderScroll(element, e);
+                                                    }
+                                                })
+                                            )
+                                        )
+                            .append($('<div class="nav-slider-right" />')
+                                .append($('<span role="button" class="nav-link nav-next-day"/>')
+                                    .html('&gt;')
+                                    .click(function () {
+                                        if (settings.scale === 'hours') {
+                                            core.navigateTo(element, tools.getCellSize() * -4);
+                                        } else if (settings.scale === 'days') {
+                                            core.navigateTo(element, tools.getCellSize() * -7);
+                                        } else if (settings.scale === 'weeks') {
+                                            core.navigateTo(element, tools.getCellSize() * -4);
+                                        } else  if (settings.scale === 'months') {
+                                            core.navigateTo(element, tools.getCellSize() * -3);
+                                        }
+                                    }))
+                            .append($('<span role="button" class="nav-link nav-next-week"/>')
+                                    .html('&gt;&gt;')
+                                    .click(function () {
+                                        if (settings.scale === 'hours') {
+                                            core.navigateTo(element, tools.getCellSize() * -8);
+                                        } else if (settings.scale === 'days') {
+                                            core.navigateTo(element, tools.getCellSize() * -30);
+                                        } else if (settings.scale === 'weeks') {
+                                            core.navigateTo(element, tools.getCellSize() * -12);
+                                        } else if (settings.scale === 'months') {
+                                            core.navigateTo(element, tools.getCellSize() * -6);
+                                        }
+                                    }))
+                                .append($('<span role="button" class="nav-link nav-zoomIn"/>')
+                                    .html('&#43;')
+                                    .click(function () {
+                                        core.zoomInOut(element, -1);
+                                    }))
+                                .append($('<span role="button" class="nav-link nav-zoomOut"/>')
+                                    .html('&#45;')
+                                    .click(function () {
+                                        core.zoomInOut(element, 1);
+                                    }))
+                                    )
+                                );
                     $(document).mouseup(function () {
                         element.scrollNavigation.scrollerMouseDown = false;
                     });
                 } else {
                     /* Navigation panel */
                     ganttNavigate = $('<div class="navigate" />')
-						.append($('<span role="button" class="nav-link nav-page-back"/>')
-							.html('&lt;')
-							.click(function () {
-							    core.navigatePage(element, -1);
-							}))
-						.append($('<div class="page-number"/>')
-								.append($('<span/>')
-									.html(element.pageNum + 1 + ' of ' + element.pageCount)))
-						.append($('<span role="button" class="nav-link nav-page-next"/>')
-							.html('&gt;')
-							.click(function () {
-							    core.navigatePage(element, 1);
-							}))
-						.append($('<span role="button" class="nav-link nav-begin"/>')
-							.html('&#124;&lt;')
-							.click(function () {
-							    core.navigateTo(element, 'begin');
-							}))
-						.append($('<span role="button" class="nav-link nav-prev-week"/>')
-							.html('&lt;&lt;')
-							.click(function () {
-							    core.navigateTo(element, tools.getCellSize() * 7);
-							}))
-						.append($('<span role="button" class="nav-link nav-prev-day"/>')
-							.html('&lt;')
-							.click(function () {
-							    core.navigateTo(element, tools.getCellSize());
-							}))
-						.append($('<span role="button" class="nav-link nav-now"/>')
-							.html('&#9679;')
-							.click(function () {
-							    core.navigateTo(element, 'now');
-							}))
-						.append($('<span role="button" class="nav-link nav-next-day"/>')
-							.html('&gt;')
-							.click(function () {
-							    core.navigateTo(element, tools.getCellSize() * -1);
-							}))
-						.append($('<span role="button" class="nav-link nav-next-week"/>')
-							.html('&gt;&gt;')
-							.click(function () {
-							    core.navigateTo(element, tools.getCellSize() * -7);
-							}))
-						.append($('<span role="button" class="nav-link nav-end"/>')
-							.html('&gt;&#124;')
-							.click(function () {
-							    core.navigateTo(element, 'end');
-							}))
-						.append($('<span role="button" class="nav-link nav-zoomIn"/>')
-							.html('&#43;')
-							.click(function () {
-							    core.zoomInOut(element, -1)
-							}))
-						.append($('<span role="button" class="nav-link nav-zoomOut"/>')
-							.html('&#45;')
-							.click(function () {
-							    core.zoomInOut(element, 1);
-							}));
+                        .append($('<span role="button" class="nav-link nav-page-back"/>')
+                            .html('&lt;')
+                            .click(function () {
+                                core.navigatePage(element, -1);
+                            }))
+                        .append($('<div class="page-number"/>')
+                                .append($('<span/>')
+                                    .html(element.pageNum + 1 + ' of ' + element.pageCount)))
+                        .append($('<span role="button" class="nav-link nav-page-next"/>')
+                            .html('&gt;')
+                            .click(function () {
+                                core.navigatePage(element, 1);
+                            }))
+                        .append($('<span role="button" class="nav-link nav-begin"/>')
+                            .html('&#124;&lt;')
+                            .click(function () {
+                                core.navigateTo(element, 'begin');
+                            }))
+                        .append($('<span role="button" class="nav-link nav-prev-week"/>')
+                            .html('&lt;&lt;')
+                            .click(function () {
+                                core.navigateTo(element, tools.getCellSize() * 7);
+                            }))
+                        .append($('<span role="button" class="nav-link nav-prev-day"/>')
+                            .html('&lt;')
+                            .click(function () {
+                                core.navigateTo(element, tools.getCellSize());
+                            }))
+                        .append($('<span role="button" class="nav-link nav-now"/>')
+                            .html('&#9679;')
+                            .click(function () {
+                                core.navigateTo(element, 'now');
+                            }))
+                        .append($('<span role="button" class="nav-link nav-next-day"/>')
+                            .html('&gt;')
+                            .click(function () {
+                                core.navigateTo(element, tools.getCellSize() * -1);
+                            }))
+                        .append($('<span role="button" class="nav-link nav-next-week"/>')
+                            .html('&gt;&gt;')
+                            .click(function () {
+                                core.navigateTo(element, tools.getCellSize() * -7);
+                            }))
+                        .append($('<span role="button" class="nav-link nav-end"/>')
+                            .html('&gt;&#124;')
+                            .click(function () {
+                                core.navigateTo(element, 'end');
+                            }))
+                        .append($('<span role="button" class="nav-link nav-zoomIn"/>')
+                            .html('&#43;')
+                            .click(function () {
+                                core.zoomInOut(element, -1);
+                            }))
+                        .append($('<span role="button" class="nav-link nav-zoomOut"/>')
+                            .html('&#45;')
+                            .click(function () {
+                                core.zoomInOut(element, 1);
+                            }));
                 }
                 return $('<div class="bottom"/>').append(ganttNavigate);
             },
@@ -810,29 +887,33 @@
                 var cellWidth = tools.getCellSize();
                 var barMarg = tools.getProgressBarMargin() || 0;
                 var bar = $('<div class="bar"><div class="fn-label">' + label + '</div></div>')
-						.addClass(cls)
-						.css({
-						    width: ((cellWidth * days) - barMarg)
-						})
-						.data("dataObj", dataObj);
+                        .addClass(cls)
+                        .css({
+                            width: ((cellWidth * days) - barMarg) + 5
+                        })
+                        .data("dataObj", dataObj);
 
                 if (desc) {
                     bar
-					  .mouseover(function (e) {
-					      var hint = $('<div class="fn-gantt-hint" />').html(desc);
-					      $("body").append(hint);
-					      hint.css("left", e.pageX);
-					      hint.css("top", e.pageY);
-					      hint.show();
-					  })
-					  .mouseout(function () {
-					      $(".fn-gantt-hint").remove();
-					  })
-					  .mousemove(function (e) {
-					      $(".fn-gantt-hint").css("left", e.pageX);
-					      $(".fn-gantt-hint").css("top", e.pageY + 15);
-					  });
+                      .mouseover(function (e) {
+                          var hint = $('<div class="fn-gantt-hint" />').html(desc);
+                          $("body").append(hint);
+                          hint.css("left", e.pageX);
+                          hint.css("top", e.pageY);
+                          hint.show();
+                      })
+                      .mouseout(function () {
+                          $(".fn-gantt-hint").remove();
+                      })
+                      .mousemove(function (e) {
+                          $(".fn-gantt-hint").css("left", e.pageX);
+                          $(".fn-gantt-hint").css("top", e.pageY + 15);
+                      });
                 }
+                bar.click(function (e) {
+                    e.stopPropagation();
+                    settings.onItemClick($(this).data("dataObj"));
+                });
                 return bar;
             },
             markNow: function (element) {
@@ -852,14 +933,15 @@
                         break;
                 }
             },
-            fillData: function (element) {
+
+            fillData: function (element, datapanel, leftpanel) {
                 var invertColor = function (colStr) {
                     try {
                         colStr = colStr.replace("rgb(", "").replace(")", "");
                         var rgbArr = colStr.split(",");
-                        var R = parseInt(rgbArr[0]);
-                        var G = parseInt(rgbArr[1]);
-                        var B = parseInt(rgbArr[2]);
+                        var R = parseInt(rgbArr[0],10);
+                        var G = parseInt(rgbArr[1],10);
+                        var B = parseInt(rgbArr[2],10);
                         var gray = Math.round((255 - (0.299 * R + 0.587 * G + 0.114 * B)) * 0.9, 1);
                         return "rgb(" + gray + ", " + gray + ", " + gray + ")";
                     } catch (err) {
@@ -868,58 +950,145 @@
                 };
                 $.each(element.data, function (i, entry) {
                     if (i >= element.pageNum * settings.itemsPerPage && i < (element.pageNum * settings.itemsPerPage + settings.itemsPerPage)) {
+
                         $.each(entry.values, function (j, day) {
                             var _bar = null;
                             switch (settings.scale) {
                                 case "hours":
-                                    var dFrom = tools.genId(tools.dateDeserialize(day.from).getTime(), element.scaleStep);
-                                    var dTo = tools.genId(tools.dateDeserialize(day.to).getTime(), element.scaleStep);
 
-                                    var cFrom = $(element).find("#d" + i + "-" + dFrom).offset().left;
-                                    var cTo = $(element).find("#d" + i + "-" + dTo).offset().left;
+
+                                    var dFrom = tools.genId(tools.dateDeserialize(day.from).getTime(), element.scaleStep);
+                                    var from = $(element).find('#dh-' + dFrom);
+
+                                    var dTo = tools.genId(tools.dateDeserialize(day.to).getTime(), element.scaleStep);
+                                    var to = $(element).find('#dh-' + dTo);
+
+                                    var cFrom = from.attr("offset");
+                                    var cTo = to.attr("offset");
                                     var dl = Math.floor((cTo - cFrom) / tools.getCellSize()) + 1;
 
                                     _bar = core.createProgressBar(
-												dl,
-												day.customClass ? day.customClass : "",
-												day.desc ? day.desc : "",
-												day.label ? day.label : "",
-												day.dataObj ? day.dataObj : null
-											);
-                                    $(element).find("#d" + i + "-" + tools.genId(tools.dateDeserialize(day.from).getTime(), element.scaleStep))
-									.append(_bar);
+                                                dl,
+                                                day.customClass ? day.customClass : "",
+                                                day.desc ? day.desc : "",
+                                                day.label ? day.label : "",
+                                                day.dataObj ? day.dataObj : null
+                                            );
+
+                                    // find row
+                                    var topEl = $(element).find("#rowheader" + i);
+
+                                    var top = tools.getCellSize() * 3 + 2 + parseInt(topEl.attr("offset"),10);
+                                    _bar.css({ 'margin-top': top, 'margin-left': Math.floor(cFrom) });
+
+                                    datapanel.append(_bar);
                                     break;
                                 case "weeks":
-                                case "months":
-                                    var dFrom = tools.genId(tools.dateDeserialize(day.from).getTime());
-                                    var dTo = tools.genId(tools.dateDeserialize(day.to).getTime());
-                                    var cFrom = $(element).find("#d" + i + "-" + dFrom).offset().left;
-                                    var cTo = $(element).find("#d" + i + "-" + dTo).offset().left;
+                                    var dtFrom = tools.dateDeserialize(day.from);
+                                    var dtTo = tools.dateDeserialize(day.to);
+
+                                    if (dtFrom.getDate() <= 3 && dtFrom.getMonth() === 0) {
+                                        dtFrom.setDate(dtFrom.getDate() + 4);
+                                    }
+
+                                    if (dtFrom.getDate() <= 3 && dtFrom.getMonth() === 0) {
+                                        dtFrom.setDate(dtFrom.getDate() + 4);
+                                    }
+
+                                    if (dtTo.getDate() <= 3 && dtTo.getMonth() === 0) {
+                                        dtTo.setDate(dtTo.getDate() + 4);
+                                    }
+
+                                    var from = $(element).find("#" + dtFrom.getWeekId());
+
+                                    var cFrom = from.attr("offset");
+
+                                    var to = $(element).find("#" + dtTo.getWeekId());
+                                    var cTo = to.attr("offset");
+
                                     var dl = Math.round((cTo - cFrom) / tools.getCellSize()) + 1;
 
                                     _bar = core.createProgressBar(
-											 dl,
-											 day.customClass ? day.customClass : "",
-											 day.desc ? day.desc : "",
-											 day.label ? day.label : "",
-											day.dataObj ? day.dataObj : null
-										);
-                                    $(element).find("#d" + i + "-" + tools.genId(tools.dateDeserialize(day.from).getTime(), element.scaleStep))
-									.append(_bar);
+                                             dl,
+                                             day.customClass ? day.customClass : "",
+                                             day.desc ? day.desc : "",
+                                             day.label ? day.label : "",
+                                            day.dataObj ? day.dataObj : null
+                                        );
+
+                                    // find row
+                                    var topEl = $(element).find("#rowheader" + i);
+
+                                    var top = tools.getCellSize() * 3 + 2 + parseInt(topEl.attr("offset"),10);
+                                    _bar.css({ 'margin-top': top, 'margin-left': Math.floor(cFrom) });
+
+                                    datapanel.append(_bar);
                                     break;
+                                case "months":
+
+                                    var dtFrom = tools.dateDeserialize(day.from);
+                                    var dtTo = tools.dateDeserialize(day.to);
+
+                                    if (dtFrom.getDate() <= 3 && dtFrom.getMonth() === 0) {
+                                        dtFrom.setDate(dtFrom.getDate() + 4);
+                                    }
+
+                                    if (dtFrom.getDate() <= 3 && dtFrom.getMonth() === 0) {
+                                        dtFrom.setDate(dtFrom.getDate() + 4);
+                                    }
+
+                                    if (dtTo.getDate() <= 3 && dtTo.getMonth() === 0) {
+                                        dtTo.setDate(dtTo.getDate() + 4);
+                                    }
+
+                                    var from = $(element).find("#dh-" + tools.genId(dtFrom.getTime()));
+                                    var cFrom = from.attr("offset");
+                                    var to = $(element).find("#dh-" + tools.genId(dtTo.getTime()));
+                                    var cTo = to.attr("offset");
+                                    var dl = Math.round((cTo - cFrom) / tools.getCellSize()) + 1;
+
+                                    _bar = core.createProgressBar(
+                                        dl,
+                                        day.customClass ? day.customClass : "",
+                                        day.desc ? day.desc : "",
+                                        day.label ? day.label : "",
+                                        day.dataObj ? day.dataObj : null
+                                    );
+
+                                    // find row
+                                    var topEl = $(element).find("#rowheader" + i);
+
+                                    var top = tools.getCellSize() * 2 + 2 + parseInt(topEl.attr("offset"),10);
+                                    _bar.css({ 'margin-top': top, 'margin-left': Math.floor(cFrom) });
+
+                                    datapanel.append(_bar);
+                                    break;
+
+                                // Days                  
                                 default:
                                     var dFrom = tools.genId(tools.dateDeserialize(day.from).getTime());
                                     var dTo = tools.genId(tools.dateDeserialize(day.to).getTime());
+
+                                    var from = $(element).find("#dh-" + dFrom);
+                                    var cFrom = from.attr("offset");
+
                                     var dl = Math.floor(((dTo / 1000) - (dFrom / 1000)) / 86400) + 1;
                                     _bar = core.createProgressBar(
-												dl,
-												day.customClass ? day.customClass : "",
-												day.desc ? day.desc : "",
-												day.label ? day.label : "",
-												day.dataObj ? day.dataObj : null
-										);
-                                    var $cell = $(element).find("#d" + i + "-" + tools.genId(tools.dateDeserialize(day.from).getTime()));
-                                    $cell.append(_bar);
+                                                dl,
+                                                day.customClass ? day.customClass : "",
+                                                day.desc ? day.desc : "",
+                                                day.label ? day.label : "",
+                                                day.dataObj ? day.dataObj : null
+                                        );
+
+                                    // find row
+                                    var topEl = $(element).find("#rowheader" + i);
+
+                                    var top = tools.getCellSize() * 4 + 2 + parseInt(topEl.attr("offset"),10);
+                                    _bar.css({ 'margin-top': top, 'margin-left': Math.floor(cFrom) });
+
+                                    datapanel.append(_bar);
+
                                     break;
                             }
                             var $l = _bar.find(".fn-label");
@@ -930,12 +1099,17 @@
                                 $l.css("color", "");
                             }
                         });
+
                     }
                 });
             },
+
             navigateTo: function (element, val) {
                 var $rightPanel = $(element).find(".fn-gantt .rightPanel");
                 var $dataPanel = $rightPanel.find(".dataPanel");
+                $dataPanel.click = function () {
+                    alert(arguments.join(""));
+                };
                 var rightPanelWidth = $rightPanel.width();
                 var dataPanelWidth = $dataPanel.width();
 
@@ -954,17 +1128,18 @@
                         }, "fast", function () { core.repositionLabel(element); });
                         break;
                     case "now":
-                        if (!element.scrollNavigation.canScroll)
+                        if (!element.scrollNavigation.canScroll) {
                             return false;
+                        }
                         var max_left = (dataPanelWidth - rightPanelWidth) * -1;
                         var cur_marg = $dataPanel.css("margin-left").replace("px", "");
                         var val = $dataPanel.find(".today").offset().left - $dataPanel.offset().left;
                         val *= -1;
-                        if (val > 0)
+                        if (val > 0) {
                             val = 0;
-                        else if (val < max_left)
+                        } else if (val < max_left) {
                             val = max_left;
-
+                        }
                         $dataPanel.animate({
                             "margin-left": val + "px"
                         }, "fast", core.repositionLabel(element));
@@ -973,14 +1148,18 @@
                     default:
                         var max_left = (dataPanelWidth - rightPanelWidth) * -1;
                         var cur_marg = $dataPanel.css("margin-left").replace("px", "");
-                        var val = parseInt(cur_marg) + val;
-                        if (val <= 0 && val >= max_left)
+                        var val = parseInt(cur_marg,10) + val;
+                        if (val <= 0 && val >= max_left) {
                             $dataPanel.animate({
                                 "margin-left": val + "px"
                             }, "fast", core.repositionLabel(element));
+                        }
                         element.scrollNavigation.panelMargin = val;
                         break;
                 }
+
+
+
             },
             navigatePage: function (element, val) {
                 if ((element.pageNum + val) >= 0 && (element.pageNum + val) < Math.ceil(element.rowsNum / settings.itemsPerPage)) {
@@ -1028,7 +1207,7 @@
                     }
 
                     if ((zoomIn && $.inArray(scale, scales) < $.inArray(settings.minScale, scales))
-						|| (!zoomIn && $.inArray(scale, scales) > $.inArray(settings.maxScale, scales))) {
+                        || (!zoomIn && $.inArray(scale, scales) > $.inArray(settings.maxScale, scales))) {
                         core.init(element);
                         return;
                     }
@@ -1040,6 +1219,11 @@
                     element.hPosition = $dataPanel.css("margin-left").replace("px", "");
                     element.scaleOldWidth = ($dataPanel.width() - $rightPanel.width());
 
+                    if (settings.useCookie) {
+                        $.cookie(this.cookieKey + "CurrentScale", settings.scale);
+                        // reset scrollPos
+                        $.cookie(this.cookieKey + "ScrollPos", null);
+                    }
                     core.init(element);
                 });
             },
@@ -1064,11 +1248,11 @@
                 clearTimeout(element.scrollNavigation.repositionDelay);
                 element.scrollNavigation.repositionDelay = setTimeout(core.repositionLabel, 50, element);
 
-                if (e.preventDefault)
+                if (e.preventDefault) {
                     e.preventDefault();
-                else
+                } else {
                     return false;
-
+                }
             },
             sliderScroll: function (element, e) {
                 var $sliderBar = $(element).find(".nav-slider-bar");
@@ -1080,12 +1264,14 @@
                 var bWidth = $sliderBar.width();
                 var wButton = $sliderBarBtn.width();
 
+                var pos, mLeft;
+
                 if ((e.pageX >= bPos.left) && (e.pageX <= bPos.left + bWidth)) {
-                    var pos = e.pageX - bPos.left;
-                    var pos = pos - wButton / 2;
+                    pos = e.pageX - bPos.left;
+                    pos = pos - wButton / 2;
                     $sliderBarBtn.css("left", pos);
 
-                    var mLeft = $dataPanel.width() - $rightPanel.width();
+                    mLeft = $dataPanel.width() - $rightPanel.width();
 
                     var pPos = pos * mLeft / bWidth * -1;
                     if (pPos >= 0) {
@@ -1099,13 +1285,14 @@
                         element.scrollNavigation.panelMargin = pPos;
                     }
                     clearTimeout(element.scrollNavigation.repositionDelay);
-                    element.scrollNavigation.repositionDelay = setTimeout(core.repositionLabel, 50, element);
+                    element.scrollNavigation.repositionDelay = setTimeout(core.repositionLabel, 5, element);
                 }
             },
             scrollPanel: function (element, delta) {
-                if (!element.scrollNavigation.canScroll)
+                if (!element.scrollNavigation.canScroll) {
                     return false;
-                var _panelMargin = parseInt(element.scrollNavigation.panelMargin) + delta;
+                }
+                var _panelMargin = parseInt(element.scrollNavigation.panelMargin,10) + delta;
                 if (_panelMargin > 0) {
                     element.scrollNavigation.panelMargin = 0;
                     $(element).find(".fn-gantt .dataPanel").css("margin-left", element.scrollNavigation.panelMargin + "px");
@@ -1116,6 +1303,7 @@
                     element.scrollNavigation.panelMargin = _panelMargin;
                     $(element).find(".fn-gantt .dataPanel").css("margin-left", element.scrollNavigation.panelMargin + "px");
                 }
+                core.synchronizeScroller(element);
             },
             synchronizeScroller: function (element) {
                 if (settings.navigate === "scroll") {
@@ -1129,66 +1317,28 @@
 
                     var mLeft = $dataPanel.width() - $rightPanel.width();
                     var hPos = 0;
-                    if ($dataPanel.css("margin-left"))
+                    if ($dataPanel.css("margin-left")) {
                         hPos = $dataPanel.css("margin-left").replace("px", "");
+                    }
                     var pos = hPos * bWidth / mLeft - $sliderBtn.width() * 0.25;
                     pos = pos > 0 ? 0 : (pos * -1 >= bWidth - (wButton * 0.75)) ? (bWidth - (wButton * 1.25)) * -1 : pos;
                     $sliderBtn.css("left", pos * -1);
                 }
             },
             repositionLabel: function (element) {
-                var $rightPanel = $(".fn-gantt .rightPanel");
-                var $dataPanel = $rightPanel.find(".dataPanel");
-                $dataPanel.stop();
-
-                var wrapper = { offset: $rightPanel.offset(),
-                    width: $rightPanel.width(),
-                    height: $rightPanel.height()
-                };
-
-                $(".fn-gantt .rightPanel .year, .fn-gantt .rightPanel .month").each(function (i, obj) {
-                    var objDim = { offset: $(obj).offset(),
-                        width: $(obj).width(),
-                        height: $(obj).height()
-                    };
-
-                    if (objDim.offset.left + objDim.width > wrapper.offset.left
-					        && objDim.offset.left < wrapper.offset.left + wrapper.width) {
-                        var viewArea = {
-                            left: objDim.offset.left > wrapper.offset.left ? objDim.offset.left : wrapper.offset.left,
-                            right: objDim.offset.left + objDim.width < wrapper.offset.left + wrapper.width ? objDim.offset.left + objDim.width : wrapper.offset.left + wrapper.width
-                        };
-                        $(obj).children(".fn-label").css("float", "left");
-                        var labelWidth = $(obj).children(".fn-label").width();
-
-                        var objMarg = objDim.offset.left < wrapper.offset.left ? wrapper.offset.left - objDim.offset.left : 0;
-                        if (viewArea.right - viewArea.left > labelWidth)
-                            $(obj).children(".fn-label")
-						    		.css("margin-left", objMarg + (viewArea.right - viewArea.left) / 2 - labelWidth / 2 + "px");
+                setTimeout(function () {
+                    var $dataPanel;
+                    if (!element) {
+                        $dataPanel = $(".fn-gantt .rightPanel .dataPanel");
+                    } else {
+                        var $rightPanel = $(element).find(".fn-gantt .rightPanel");
+                        $dataPanel = $rightPanel.find(".dataPanel");
                     }
-                });
-                $(".fn-gantt .rightPanel .bar").each(function (i, obj) {
-                    var objDim = { offset: $(obj).offset(),
-                        width: $(obj).width(),
-                        height: $(obj).height()
-                    };
 
-                    if (objDim.offset.left + objDim.width > wrapper.offset.left
-					        && objDim.offset.left < wrapper.offset.left + wrapper.width) {
-                        var viewArea = {
-                            left: objDim.offset.left > wrapper.offset.left ? objDim.offset.left : wrapper.offset.left,
-                            right: objDim.offset.left + objDim.width < wrapper.offset.left + wrapper.width ? objDim.offset.left + objDim.width : wrapper.offset.left + wrapper.width
-                        };
-                        $(obj).children(".fn-label").css("float", "left");
-                        var labelWidth = $(obj).children(".fn-label").width();
-
-                        var objMarg = objDim.offset.left < wrapper.offset.left ? wrapper.offset.left - objDim.offset.left : 0;
-                        if (viewArea.right - viewArea.left > labelWidth)
-                            $(obj).children(".fn-label")
-						    		.css("margin-left", objMarg + (viewArea.right - viewArea.left) / 2 - labelWidth / 2 + "px");
+                    if (settings.useCookie) {
+                        $.cookie(this.cookieKey + "ScrollPos", $dataPanel.css("margin-left").replace("px", ""));
                     }
-                });
-                core.synchronizeScroller(element);
+                }, 500);
             },
             waitToggle: function (element, show, fn) {
                 if (show) {
@@ -1198,14 +1348,15 @@
 
                     if (!element.loader) {
                         element.loader = $('<div class="fn-gantt-loader" style="position: absolute; top: ' + eo.top + 'px; left: ' + eo.left + 'px; width: ' + ew + 'px; height: ' + eh + 'px;">'
-						+ '<div class="fn-gantt-loader-spinner"><span>' + settings.waitText + '</span></div></div>');
+                        + '<div class="fn-gantt-loader-spinner"><span>' + settings.waitText + '</span></div></div>');
                     }
                     $("body").append(element.loader);
                     setTimeout(fn, 100);
 
                 } else {
-                    if (element.loader)
+                    if (element.loader) {
                         element.loader.remove();
+                    }
                     element.loader = null;
                 }
             }
@@ -1215,6 +1366,7 @@
         * Additional functions
         */
         var tools = {
+
             getMaxDate: function (element) {
                 var maxDate = null;
                 $.each(element.data, function (i, entry) {
@@ -1272,16 +1424,14 @@
                     default:
                         minDate.setHours(0);
                         minDate.setDate(minDate.getDate() - 3);
-                        //if (minDate.getDate() >= 27)
-                        //	minDate.setDate(minDate.getDate() - element.headerRows);
                         break;
                 }
                 return minDate;
             },
             parseDateRange: function (from, to) {
                 var current = new Date(from.getTime());
-                var end = new Date(to.getTime()); ;
-                var ret = new Array();
+                var end = new Date(to.getTime());
+                var ret = [];
                 var i = 0;
                 do {
                     ret[i++] = new Date(current.getTime());
@@ -1293,16 +1443,16 @@
             parseTimeRange: function (from, to, scaleStep) {
                 var current = new Date(from);
                 var end = new Date(to);
-
-                var ret = new Array();
+                var ret = [];
                 var i = 0;
                 do {
                     ret[i] = new Date(current.getTime());
                     current.setHours(current.getHours() + scaleStep);
                     current.setHours(Math.floor((current.getHours()) / scaleStep) * scaleStep);
 
-                    if (current.getDay() != ret[i].getDay())
+                    if (current.getDay() !== ret[i].getDay()) {
                         current.setHours(0);
+                    }
 
                     i++;
                 } while (current.getTime() <= to.getTime());
@@ -1313,7 +1463,7 @@
                 var current = new Date(from);
                 var end = new Date(to);
 
-                var ret = new Array();
+                var ret = [];
                 var i = 0;
                 do {
 
@@ -1330,7 +1480,7 @@
                 var current = new Date(from);
                 var end = new Date(to);
 
-                var ret = new Array();
+                var ret = [];
                 var i = 0;
                 do {
                     ret[i++] = new Date(current.getFullYear(), current.getMonth(), 1);
@@ -1344,33 +1494,38 @@
                 var date = eval("new" + dateStr.replace(/\//g, " "));
                 return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes());
             },
+
+
+
             genId: function (ticks) {
                 var t = new Date(ticks);
                 switch (settings.scale) {
                     case "hours":
                         var hour = t.getHours();
-
-                        if (arguments.length >= 2)
+                        if (arguments.length >= 2) {
                             hour = (Math.floor((t.getHours()) / arguments[1]) * arguments[1]);
+                        }
                         return (new Date(t.getFullYear(), t.getMonth(), t.getDate(), hour)).getTime();
-                        break;
                     case "weeks":
-                        return t.getFullYear() + "-" + t.getDayForWeek().getWeekOfYear();
-                        break;
+                        var y = t.getFullYear();
+                        var w = t.getDayForWeek().getWeekOfYear();
+                        var m = t.getMonth();
+                        if (m === 11 && w === 1) {
+                            y++;
+                        }
+                        return y + "-" + w;
                     case "months":
                         return t.getFullYear() + "-" + t.getMonth();
-                        break;
                     default:
                         return (new Date(t.getFullYear(), t.getMonth(), t.getDate())).getTime();
-                        break;
                 }
             },
             _getCellSize: null,
             getCellSize: function () {
                 if (!tools._getCellSize) {
                     $("body").append(
-						$('<div style="display: none; position: absolute;" class="fn-gantt" id="measureCellWidth"><div class="row"></div></div>')
-					);
+                        $('<div style="display: none; position: absolute;" class="fn-gantt" id="measureCellWidth"><div class="row"></div></div>')
+                    );
                     tools._getCellSize = $("#measureCellWidth .row").height();
                     $("#measureCellWidth").empty().remove();
                 }
@@ -1378,8 +1533,8 @@
             },
             getRightPanelSize: function () {
                 $("body").append(
-					$('<div style="display: none; position: absolute;" class="fn-gantt" id="measureCellWidth"><div class="rightPanel"></div></div>')
-				);
+                    $('<div style="display: none; position: absolute;" class="fn-gantt" id="measureCellWidth"><div class="rightPanel"></div></div>')
+                );
                 var ret = $("#measureCellWidth .rightPanel").height();
                 $("#measureCellWidth").empty().remove();
                 return ret;
@@ -1391,10 +1546,10 @@
             getProgressBarMargin: function () {
                 if (!tools._getProgressBarMargin) {
                     $("body").append(
-						$('<div style="display: none; position: absolute;" id="measureBarWidth" ><div class="fn-gantt"><div class="rightPanel"><div class="dataPanel"><div class="row day"><div class="bar" /></div></div></div></div></div>')
-					);
-                    tools._getProgressBarMargin = parseInt($("#measureBarWidth .fn-gantt .rightPanel .day .bar").css("margin-left").replace("px", ""));
-                    tools._getProgressBarMargin += parseInt($("#measureBarWidth .fn-gantt .rightPanel .day .bar").css("margin-right").replace("px", ""));
+                        $('<div style="display: none; position: absolute;" id="measureBarWidth" ><div class="fn-gantt"><div class="rightPanel"><div class="dataPanel"><div class="row day"><div class="bar" /></div></div></div></div></div>')
+                    );
+                    tools._getProgressBarMargin = parseInt($("#measureBarWidth .fn-gantt .rightPanel .day .bar").css("margin-left").replace("px", ""),10);
+                    tools._getProgressBarMargin += parseInt($("#measureBarWidth .fn-gantt .rightPanel .day .bar").css("margin-right").replace("px", ""),10);
                     $("#measureBarWidth").empty().remove();
                 }
                 return tools._getProgressBarMargin;
@@ -1406,8 +1561,9 @@
             /**
             * Extend options with default values
             */
-            if (options)
+            if (options) {
                 $.extend(settings, options);
+            }
 
             this.data = null;        // Recived data
             this.pageNum = 0;        // Current page number
@@ -1419,8 +1575,17 @@
             this.dateEnd = null;
             this.scrollClicked = false;
             this.scaleOldWidth = null;
-
             this.headerRows = null;
+
+            if (settings.useCookie) {
+                var sc = $.cookie(this.cookieKey + "CurrentScale");
+                if (sc) {
+                    settings.scale = $.cookie(this.cookieKey + "CurrentScale");
+                } else {
+                    $.cookie(this.cookieKey + "CurrentScale", settings.scale);
+                }
+            }
+
             switch (settings.scale) {
                 case "hours": this.headerRows = 5; this.scaleStep = 1; break;
                 case "weeks": this.headerRows = 3; this.scaleStep = 13; break;
