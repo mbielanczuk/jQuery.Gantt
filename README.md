@@ -1,4 +1,5 @@
 [Demo and Documentation](http://taitems.github.com/jQuery.Gantt/)
+==============
 
 jQuery Gantt Chart is a simple chart that implements gantt functionality as 
 a jQuery component.
@@ -18,3 +19,5 @@ Plugin was tested and should work on:
  - Safari 5+
  - Opera 9+
  - IE 8+
+
+Distributed under an MIT license.
