@@ -979,7 +979,7 @@
                                     // find row
                                     var topEl = $(element).find("#rowheader" + i);
 
-                                    var top = tools.getCellSize() * 3 + 2 + parseInt(topEl.attr("offset"),10);
+                                    var top = tools.getCellSize() * 5 + 2 + parseInt(topEl.attr("offset"),10);
                                     _bar.css({ 'margin-top': top, 'margin-left': Math.floor(cFrom) });
 
                                     datapanel.append(_bar);
