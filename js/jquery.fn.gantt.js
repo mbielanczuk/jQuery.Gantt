@@ -1129,7 +1129,7 @@
                         }, "fast", function () { core.repositionLabel(element); });
                         break;
                     case "now":
-                        if (!element.scrollNavigation.canScroll) {
+                        if (!element.scrollNavigation.canScroll || !$dataPanel.find(".today").length) {
                             return false;
                         }
                         var max_left = (dataPanelWidth - rightPanelWidth) * -1;
