@@ -90,6 +90,7 @@ body {
 .fn-gantt .dataPanel {
 	margin-left: 0px;
 	border-right: 1px solid #DDD;
+	position: relative;
 }
 
 .fn-gantt .dataPanel:after {
@@ -158,8 +159,25 @@ body {
     padding: 10px;
 	position: absolute;
 	display: none;
-    z-index: 10001;
+    z-index: 10003;
+	-webkit-box-shadow: 1px 1px 5px 0px #333;
+	box-shadow: 1px 1px 5px 0px #333;
 }
+
+.fn-gantt-hint:after {
+	content: "";
+	display: block;
+	position: absolute;
+	width: 0px;
+	height:0px;
+	top: -15px;
+	left: 5px;
+	border-bottom: 5px solid #edc332;
+	border-left:   5px solid #edc332;
+	border-right:  5px solid transparent;
+	border-top:    5px solid transparent;
+    z-index: 10001;
+	}
 
 .fn-gantt .bar {
 	border: none;
@@ -167,10 +185,12 @@ body {
     -moz-border-radius: 3px;
     border-radius: 3px;   
     background-color: #89c5f8;
+	-webkit-box-shadow: 1px 1px 1px 0px #333;
+	box-shadow: 1px 1px 1px 0px #333;
     height: 18px;
     margin: 4px 3px 3px 3px;
     position: absolute;
-    z-index: 10000; 
+    z-index: 10000;
 }
 
 .fn-gantt .bar .label {
@@ -188,6 +208,31 @@ body {
 
 .fn-gantt .ganttOrange {
 	background-color: #ff7e24;
+}
+
+.fn-gantt .depLine {
+	background-color: transparent;
+	position: absolute;
+	z-index: 9999;
+}
+
+.fn-gantt .depLineSh {
+	margin-top: 2px;
+	margin-left: 2px;
+	opacity: 0.3;
+}
+
+.fn-gantt .depStart, .fn-gantt .depEnd {
+	position: absolute;
+	width: 5px;
+	height: 5px;
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
+	border-radius: 50%;
+	border: 2px solid #fff;
+	-webkit-box-shadow: 1px 1px 1px 0px #444;
+	box-shadow: 1px 1px 1px 0px #444;
+	z-index: 10001;
 }
 
 /* bottom (navigation) */
