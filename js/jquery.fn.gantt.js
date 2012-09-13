@@ -24,6 +24,7 @@
             waitText: "Please wait...",
             onItemClick: function (data) { return; },
             onAddClick: function (data) { return; },
+            onRender: function() { return; },
             scrollToToday: true
         };
 
@@ -248,6 +249,7 @@
 
                 $dataPanel.css({ height: $leftPanel.height() });
                 core.waitToggle(element, false);
+                settings.onRender();
             },
             leftPanel: function (element) {
                 /* Left panel */
