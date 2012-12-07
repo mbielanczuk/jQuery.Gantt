@@ -295,7 +295,7 @@
 							 */
 							var rfy = rday.getFullYear();
 							if (rfy != year) {
-								years.html(years.html()+
+								years.append(
 									$('<div class="row header year" style="width: ' 
 										+ tools.getCellSize()*daysInYear 
 										+ 'px;"><div class="label">' 
