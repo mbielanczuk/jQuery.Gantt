@@ -104,7 +104,9 @@
     background-image: url(../img/grid.png);
     background-repeat: repeat;
     background-position: 24px 24px;
+    position: relative;
 }
+
 .fn-gantt .day, .fn-gantt .date {
     overflow: visible;
     width: 24px;
@@ -226,6 +228,30 @@
     color: #714715 !important;
 }
 
+.fn-gantt .depLine {
+  background-color: transparent;
+  position: absolute;
+  z-index: 9999;
+}
+
+.fn-gantt .depLineSh {
+  margin-top: 2px;
+  margin-left: 2px;
+  opacity: 0.3;
+}
+
+.fn-gantt .depStart, .fn-gantt .depEnd {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  -webkit-box-shadow: 1px 1px 1px 0px #444;
+  box-shadow: 1px 1px 1px 0px #444;
+  z-index: 10001;
+}
 
 /* === BOTTOM NAVIGATION === */
 
