@@ -1525,17 +1525,20 @@
                 var end = new Date(to);
                 var ret = [];
                 var i = 0;
-                do {
+                for(;;) {
                     ret[i] = new Date(current.getTime());
                     current.setHours(current.getHours() + scaleStep);
+    		
+					// Check before applying floor, to avoid deadlocks.
+					if(current.getTime() > to.getTime()) break;
+					
                     current.setHours(Math.floor((current.getHours()) / scaleStep) * scaleStep);
 
                     if (current.getDay() !== ret[i].getDay()) {
                         current.setHours(0);
                     }
-
                     i++;
-                } while (current.getTime() <= to.getTime());
+                };
                 return ret;
             },
 
