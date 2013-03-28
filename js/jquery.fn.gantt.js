@@ -230,7 +230,7 @@
                     core.waitToggle(element, true, function () { core.render(element); });
                 }
                 catch(e) {
-                    if ( null === element.data || (typeof element.data == object && element.data.length == 0 ) )
+                    if ( element.data === null || (typeof element.data === 'object' && element.data.length === 0 ) )
                         settings.onDataLoadFailed($(this).data("dataObj"));
                 }
             },
