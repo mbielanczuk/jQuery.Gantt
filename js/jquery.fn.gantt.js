@@ -1257,6 +1257,7 @@
 
             // Change zoom level
             zoomInOut: function (element, val) {
+                console.log('zoomInOut', element, val);
                 core.waitToggle(element, true, function () {
 
                     var zoomIn = (val < 0);
@@ -1290,6 +1291,7 @@
                         headerRows = 3;
                         scaleSt = 13;
                     }
+                    console.log(scaleSt);
 
                     if ((zoomIn && $.inArray(scale, scales) < $.inArray(settings.minScale, scales))
                         || (!zoomIn && $.inArray(scale, scales) > $.inArray(settings.maxScale, scales))) {
@@ -1561,7 +1563,7 @@
                     }
 
                     i++;
-                } while (current.getTime() <= to.getTime());
+                } while (current.getTime() <= to.getTime() || i < 20);
                 return ret;
             },
 
