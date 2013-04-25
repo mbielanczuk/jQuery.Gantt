@@ -517,8 +517,6 @@
                                     + rday.getHours()
                                     + '</div>');
                         }
-
-
                         // Last year
                        yearArr.push(
                             '<div class="row header year" style="width: '
@@ -1541,7 +1539,7 @@
                 do {
                     ret[i++] = new Date(current.getTime());
                     current.setDate(current.getDate() + 1);
-                } while (current.getTime() <= to.getTime());
+                } while (current.getTime() <= to.getTime() || i < 20);
                 return ret;
 
             },
@@ -1581,7 +1579,7 @@
                         ret[i++] = current.getDayForWeek();
                     }
                     current.setDate(current.getDate() + 1);
-                } while (current.getTime() <= to.getTime());
+                } while (current.getTime() <= to.getTime() || i < 20);
 
                 return ret;
             },
@@ -1599,7 +1597,7 @@
                 do {
                     ret[i++] = new Date(current.getFullYear(), current.getMonth(), 1);
                     current.setMonth(current.getMonth() + 1);
-                } while (current.getTime() <= to.getTime());
+                } while (current.getTime() <= to.getTime() || i < 20);
 
                 return ret;
             },
