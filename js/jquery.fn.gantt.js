@@ -1038,6 +1038,8 @@
                                     var dTo = tools.genId(tools.dateDeserialize(day.to).getTime(), element.scaleStep);
                                     var to = $(element).find('#dh-' + dTo);
 
+                                    console.log(dFrom, dTo);
+
                                     var cFrom = from.attr("offset");
                                     var cTo = to.attr("offset");
                                     var dl = Math.floor((cTo - cFrom) / tools.getCellSize()) + 1;
@@ -1549,6 +1551,12 @@
             parseTimeRange: function (from, to, scaleStep) {
                 var current = new Date(from);
                 var end = new Date(to);
+
+                //Reset minutes/seconds/ms
+                current.setMinutes(0);
+                current.setSeconds(0);
+                current.setMilliseconds(0);
+
                 var ret = [];
                 var i = 0;
                 do {
