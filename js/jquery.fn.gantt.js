@@ -46,6 +46,7 @@
             onItemClick: function (data) { return; },
             onAddClick: function (data) { return; },
             onRender: function() { return; },
+            onDataLoadFailed: function(data) { return; },
             scrollToToday: true
         };
 
@@ -216,16 +217,22 @@
             // Here we calculate the number of rows, pages and visible start
             // and end dates once the data is ready
             init: function (element) {
-                element.rowsNum = element.data.length;
-                element.pageCount = Math.ceil(element.rowsNum / settings.itemsPerPage);
-                element.rowsOnLastPage = element.rowsNum - (Math.floor(element.rowsNum / settings.itemsPerPage) * settings.itemsPerPage);
+                try {
+                    element.rowsNum = element.data.length;
+                    element.pageCount = Math.ceil(element.rowsNum / settings.itemsPerPage);
+                    element.rowsOnLastPage = element.rowsNum - (Math.floor(element.rowsNum / settings.itemsPerPage) * settings.itemsPerPage);
 
-                element.dateStart = tools.getMinDate(element);
-                element.dateEnd = tools.getMaxDate(element);
+                    element.dateStart = tools.getMinDate(element);
+                    element.dateEnd = tools.getMaxDate(element);
 
 
-                /* core.render(element); */
-                core.waitToggle(element, true, function () { core.render(element); });
+                    /* core.render(element); */
+                    core.waitToggle(element, true, function () { core.render(element); });
+                }
+                catch(e) {
+                    if ( element.data === null || (typeof element.data === 'object' && element.data.length === 0 ) )
+                        settings.onDataLoadFailed($(this).data("dataObj"));
+                }
             },
 
             // **Render the grid**
@@ -1176,222 +1183,9 @@
                                 $l.css("color", "");
                             }
                         });
-					}
-				});
-				/*
-				 * Dependecies (temporary disabled)
-				 */
-				/*
-				$.each(element.data, function(i, entry) {
-									$.each(entry.values, function(j, day) {
-										if (day.id && day.dep)
-										{
-											var elemA = $("#"+day.id);
-											var elemB = $("#"+day.dep);
-				
-											if (elemA.length>0 && elemB.length<=0) {
-												
-												var depS = $("<div id='" + day.id+"-"+day.dep + "Start' class='depStart'></div>");
-												var depE = $("<div id='" + day.id+"-"+day.dep + "End' class='depEnd'></div>");
-				
-												depS.css('background-color', "#888");
-												depE.css('background-color', elemA.css("background-color"));
-				
-												var pa = elemA.position();
-												var ppa = elemA.parent().position();
-												var pA = {
-													left: ppa.left + elemA.outerWidth()+3,
-													top : ppa.top + Math.round(elemA.outerHeight()/2)+2
-												};
-												
-												depS.css( 'left', pA.left-5 + "px" );
-												depS.css( 'top' , pA.top -4 + "px" );
-												depE.css( 'left', pA.left+16 + "px" );
-												depE.css( 'top' , pA.top -4 + "px" );
-												
-												
-												
-												var dep = $("<div id='" + day.id+"-"+day.dep + "Top' class='depLine'></div>");
-												dep.css('left'    , pA.left-5  + "px");
-												dep.css('top'     , pA.top+1  + "px");
-												dep.css('width'   , "25px");
-												dep.css('height'  , "5px");
-												dep.css('border-top', "1px solid #333");
-												
-												var el = null;
-												for (i=0;i<element.data.length;i++)
-													for (j=0;j<element.data[i].values.length;j++)
-														if (element.data[i].values[j].id == day.dep)
-														{
-															el = element.data[i].values[j];
-															break;
-														}
-				
-												var hColor = "#FF0D00";		
-												var mouseover = function (e) {
-													  depS.css("border-color", hColor);
-													  depE.css("border-color", hColor);
-													  depS.css("z-index", "10002");
-													  depE.css("z-index", "10002");
-													  dep.css("z-index", "10000");
-													  dep.css("border-color", hColor);
-												};
-												var mouseout = function (e) {
-													  depS.css("border-color", "#fff");
-													  depE.css("border-color", "#fff");
-													  depS.css("z-index", "10001");
-													  depE.css("z-index", "10001");
-													  dep.css("z-index", "9999");
-													  dep.css("border-color", "#333");
-												};
-														
-												if (el) {
-													depE.mouseover(function(e){
-														var hint = $("<div class='fn-gantt-hint' />").html(el.desc);
-														$("body").append(hint);
-														hint.css('left', e.pageX);
-														hint.css('top', e.pageY);
-														  hint.show();
-													  })
-													  .mouseout(function(){
-														  $(".fn-gantt-hint").remove();
-													  })
-													  .mousemove(function(e){
-														$('.fn-gantt-hint').css('left', e.pageX);
-													 $('.fn-gantt-hint').css('top', e.pageY+15);
-													 });
-												}
-												
-												depS.mouseover(mouseover);
-												depS.mouseout(mouseout);
-												depE.mouseover(mouseover);
-												depE.mouseout(mouseout);
-												
-												var $rightPanel = $(element).find('.fn-gantt .rightPanel');
-												var $dataPanel = $rightPanel.find('.dataPanel');
-												$dataPanel.append(dep);
-												var depSh = dep.clone();
-												depSh.addClass("depLineSh");
-												$dataPanel.append(depSh);
-												$dataPanel.append(depS);
-												$dataPanel.append(depE);
-											}
-											else if (elemA.length>0 && elemB.length>0){
-											
-												var depS = $("<div id='" + day.id+"-"+day.dep + "Start' class='depStart'></div>");
-												var depE = $("<div id='" + day.id+"-"+day.dep + "End' class='depEnd'></div>");
-				;
-												depS.css('background-color', elemB.css("background-color"));
-												depE.css('background-color', elemA.css("background-color"));
-												
-												var dep = $("<div id='" + day.id+"-"+day.dep + "Top' class='depLine'></div>");
-												var dep2 = $("<div id='" + day.id+"-"+day.dep + "Bottom' class='depLine'></div>");
-												
-												var pa = elemA.position();
-												var pb = elemB.position();
-												
-												var ppa = elemA.parent().position();
-												var ppb = elemB.parent().position();
-												
-												var pA = {
-													left: ppa.left + elemA.outerWidth()+3,
-													top : ppa.top + Math.round(elemA.outerHeight()/2)+2
-												};
-												
-												var pB = {
-													left: pb.left+1,
-													top : ppb.top + Math.round(elemB.outerHeight()/2)+2
-												};
-				
-												console.log(pA, pB);
-				
-												depS.css( 'left', pA.left-5 + "px  !important" );
-												depS.css( 'top' , pA.top-4  + "px !important" );
-												depE.css( 'left', pB.left-2 + "px !important" );
-												depE.css( 'top' , pB.top-4   + "px !important" );
-				
-												var depLW = function(obj, left, width, borders) {
-													obj.css('left' , left  + "px");
-													obj.css('width', width + "px");
-													var bdStyle = "1px solid #333";
-													for (i=0; i<borders.length;i++) {
-														obj.css('border-' + borders[i], bdStyle);
-													}
-												};
-				
-												if (pA.top < pB.top) {
-				
-													var hW = Math.round( Math.abs(pA.left-pB.left)/2);
-													if (pA.left < pB.left) {
-														depLW(dep , pA.left   , hW  , ["top", "right"]);
-														depLW(dep2, pA.left+hW, hW  , ["left", "bottom"]);
-													} else {
-														depLW(dep , pB.left+hW, hW+5, ["right", "bottom"]);
-														depLW(dep2, pB.left , hW+5, ["top", "left"]);
-													}
-				
-													dep.css('top'   , pA.top+1          + "px");
-													dep.css('height', Math.floor((pB.top - pA.top)/2) + "px");
-													dep2.css('top'   , pA.top + Math.floor((pB.top - pA.top)/2) + 1 + "px");
-													dep2.css('height', Math.floor((pB.top - pA.top)/2) + "px");
-												} else {
-													var hW = Math.round( Math.abs(pA.left-pB.left)/2);
-													if (pA.left < pB.left) {
-														depLW(dep2 , pA.left   , hW , ["bottom", "right"]);
-														depLW(dep  , pA.left+hW, hW , ["left", "top"]);
-													} else {
-														depLW(dep2 , pB.left+hW, hW+5, ["top", "right"]);
-														depLW(dep  , pB.left , hW+5, ["left" , "bottom"]);
-													}
-													
-													dep.css('top'   , pB.top+1          + "px");
-													dep.css('height', Math.floor((pA.top - pB.top)/2) + "px");
-													dep2.css('top'   , pB.top + Math.floor((pA.top - pB.top)/2) + 1 + "px");
-													dep2.css('height', Math.floor((pA.top - pB.top)/2) + "px");
-												}
-												var hColor = "#FF0D00";
-												var mouseover = function(e){
-													  depS.css("border-color", hColor);
-													  depE.css("border-color", hColor);
-													  depS.css("z-index", "10002");
-													  depE.css("z-index", "10002");
-													  dep.css("z-index", "10000");
-													  dep2.css("z-index", "10000");
-													  dep.css("border-color", hColor);
-													  dep2.css("border-color", hColor);
-											   };
-											   var mouseout = function(e){
-													  depS.css("border-color", "#fff");
-													  depE.css("border-color", "#fff");
-													  depS.css("z-index", "10001");
-													  depE.css("z-index", "10001");
-													  dep.css("z-index", "9999");
-													  dep2.css("z-index", "9999");
-													  dep.css("border-color", "#333");
-													  dep2.css("border-color", "#333");
-											   };
-												depS.mouseover(mouseover);
-												depS.mouseout(mouseout);
-												depE.mouseover(mouseover);
-												depE.mouseout(mouseout);
-												
-												var $rightPanel = $(element).find('.fn-gantt .rightPanel');
-												var $dataPanel = $rightPanel.find('.dataPanel');
-												$dataPanel.append(dep);
-												$dataPanel.append(dep2);
-												var depSh = dep.clone();
-												var dep2Sh = dep2.clone();
-												depSh.addClass("depLineSh");
-												dep2Sh.addClass("depLineSh");
-												$dataPanel.append(depSh);
-												$dataPanel.append(dep2Sh);
-												$dataPanel.append(depS);
-												$dataPanel.append(depE);
-											}
-										}
-									});
-								});*/
-				
+
+                    }
+                });
             },
             // **Navigation**
             navigateTo: function (element, val) {
