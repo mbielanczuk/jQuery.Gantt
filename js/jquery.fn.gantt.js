@@ -742,8 +742,8 @@
 
                         dataPanel.append(yearArr.join(""));
                         dataPanel.append(monthArr.join(""));
-                        dataPanel.append($('<div class="row"/>').html(dayArr.join("")));
-                        dataPanel.append($('<div class="row"/>').html(dowArr.join("")));
+                        dataPanel.append($('<div class="row" style="margin-left: 0;" />').html(dayArr.join("")));
+                        dataPanel.append($('<div class="row" style="margin-left: 0;" />').html(dowArr.join("")));
 
                         break;
                 }
