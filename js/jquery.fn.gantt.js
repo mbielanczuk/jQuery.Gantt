@@ -713,7 +713,7 @@
                             }
 
                             dayArr.push('<div class="row date ' + day_class + '" '
-                                    + ' id="dh-' + tools.genId(rday.getTime()) + '" offset="' + i * tools.getCellSize() + '" repdate="' + rday.genRepDate() + '> '
+                                    + ' id="dh-' + tools.genId(rday.getTime()) + '" offset="' + i * tools.getCellSize() + '" repdate="' + rday.genRepDate() + '"> '
                                     + ' <div class="fn-label">' + rday.getDate() + '</div></div>');
                             dowArr.push('<div class="row day ' + day_class + '" '
                                     + ' id="dw-' + tools.genId(rday.getTime()) + '"  repdate="' + rday.genRepDate() + '"> '
