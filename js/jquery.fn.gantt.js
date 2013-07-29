@@ -506,9 +506,9 @@
                                     + day_class
                                     + '" id="dh-'
                                     + rday.getTime()
-                                    + '"  offset="' + i * tools.getCellSize() + '"  repdate="' + rday.genRepDate() + '"> '
+                                    + '"  offset="' + i * tools.getCellSize() + '"  repdate="' + rday.genRepDate() + '"><div class="fn-label">'
                                     + rday.getHours()
-                                    + '</div>');
+                                    + '</div></div>');
                         }
 
 
@@ -679,7 +679,7 @@
 
                         for (var i = 0; i < range.length; i++) {
                             var rday = range[i];
-							
+
                             // Fill years
                             if (rday.getFullYear() !== year) {
                                 yearArr.push(
@@ -713,7 +713,7 @@
                             }
 
                             dayArr.push('<div class="row date ' + day_class + '" '
-                                    + ' id="dh-' + tools.genId(rday.getTime()) + '" offset="' + i * tools.getCellSize() + '" repdate="' + rday.genRepDate() + '> '
+                                    + ' id="dh-' + tools.genId(rday.getTime()) + '" offset="' + i * tools.getCellSize() + '" repdate="' + rday.genRepDate() + '"> '
                                     + ' <div class="fn-label">' + rday.getDate() + '</div></div>');
                             dowArr.push('<div class="row day ' + day_class + '" '
                                     + ' id="dw-' + tools.genId(rday.getTime()) + '"  repdate="' + rday.genRepDate() + '"> '
@@ -733,7 +733,7 @@
                             + tools.getCellSize() * daysInMonth + 'px"><div class="fn-label">'
                             + settings.months[month]
                             + '</div></div>');
-						
+
                         var dataPanel = core.dataPanel(element, range.length * tools.getCellSize());
 
 
@@ -1522,12 +1522,28 @@
             parseTimeRange: function (from, to, scaleStep) {
                 var current = new Date(from);
                 var end = new Date(to);
+
+                // GR: Fix begin
+                current.setMilliseconds(0);
+                current.setSeconds(0);
+                current.setMinutes(0);
+                current.setHours(0);
+
+                end.setMilliseconds(0);
+                end.setSeconds(0);
+                if (end.getMinutes() > 0 || end.getHours() > 0) {
+                    end.setMinutes(0);
+                    end.setHours(0);
+                    end.setTime(end.getTime() + (86400000)); // Add day
+                }
+                // GR: Fix end
+
                 var ret = [];
                 var i = 0;
                 for(;;) {
 					var dayStartTime = new Date(current);
 					dayStartTime.setHours(Math.floor((current.getHours()) / scaleStep) * scaleStep);
-					
+
                     if (ret[i] && dayStartTime.getDay() !== ret[i].getDay()) {
 						// If mark-cursor jumped to next day, make sure it starts at 0 hours
 						dayStartTime.setHours(0);
@@ -1544,11 +1560,13 @@
                     }
 					*/
 
-					current = ktkGetNextDate(current, scaleStep);
+                    // GR Fix Begin
+					current = ktkGetNextDate(dayStartTime, scaleStep);
+                    // GR Fix End
 
                     i++;
-                };
-				
+                }
+
                 return ret;
             },
 
@@ -1591,9 +1609,9 @@
 
             // Deserialize a date from a string
             dateDeserialize: function (dateStr) {
-                //return eval("new" + dateStr.replace(/\//g, " "));
-                var date = eval("new" + dateStr.replace(/\//g, " "));
-                return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes());
+                var newDate = new Date();
+                newDate.setTime(dateStr.replace(/[^0-9]/g, ""));
+                return newDate;
             },
 
             // Generate an id for a date
@@ -1734,5 +1752,5 @@ function ktkGetNextDate(currentDate, scaleStep) {
 
 		// If code reaches here, it's because current didn't really increment (invalid local time) because of daylight-saving adjustments
 		// => retry adding 2, 3, 4 hours, and so on (until nextDate > current)
-	}	
+	}
 }
