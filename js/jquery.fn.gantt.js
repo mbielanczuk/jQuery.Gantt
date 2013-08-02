@@ -20,8 +20,7 @@
 //      });
 
 //
-/*jshint shadow:true, unused:false, laxbreak:true, evil:true*/
-/*globals jQuery, alert*/
+/*jshint shadow:true, laxbreak:true, browser:true, jquery:true */
 (function ($) {
 
     "use strict";
@@ -175,6 +174,20 @@
             }
         };
 
+        // fixes https://github.com/taitems/jQuery.Gantt/issues/62
+        function ktkGetNextDate(currentDate, scaleStep) {
+            for(var minIncrements = 1;; minIncrements++) {
+                var nextDate = new Date(currentDate);
+                nextDate.setHours(currentDate.getHours() + scaleStep * minIncrements);
+
+                if (nextDate.getTime() !== currentDate.getTime()) {
+                    return nextDate;
+                }
+
+                // If code reaches here, it's because current didn't really increment (invalid local time) because of daylight-saving adjustments
+                // => retry adding 2, 3, 4 hours, and so on (until nextDate > current)
+            }
+        }
 
         // Grid management
         // ===============
@@ -672,7 +685,7 @@
                     default:
                         range = tools.parseDateRange(element.dateStart, element.dateEnd);
 
-						var dateBefore = ktkGetNextDate(range[0], -1);
+                        var dateBefore = ktkGetNextDate(range[0], -1);
                         var year = dateBefore.getFullYear();
                         var month = dateBefore.getMonth();
                         var day = dateBefore;
@@ -1164,9 +1177,6 @@
             navigateTo: function (element, val) {
                 var $rightPanel = $(element).find(".fn-gantt .rightPanel");
                 var $dataPanel = $rightPanel.find(".dataPanel");
-                $dataPanel.click = function () {
-                    alert(arguments.join(""));
-                };
                 var rightPanelWidth = $rightPanel.width();
                 var dataPanelWidth = $dataPanel.width();
 
@@ -1541,27 +1551,27 @@
                 var ret = [];
                 var i = 0;
                 for(;;) {
-					var dayStartTime = new Date(current);
-					dayStartTime.setHours(Math.floor((current.getHours()) / scaleStep) * scaleStep);
+                    var dayStartTime = new Date(current);
+                    dayStartTime.setHours(Math.floor((current.getHours()) / scaleStep) * scaleStep);
 
                     if (ret[i] && dayStartTime.getDay() !== ret[i].getDay()) {
-						// If mark-cursor jumped to next day, make sure it starts at 0 hours
-						dayStartTime.setHours(0);
+                        // If mark-cursor jumped to next day, make sure it starts at 0 hours
+                        dayStartTime.setHours(0);
                     }
-					ret[i] = dayStartTime;
+                    ret[i] = dayStartTime;
 
-					// Note that we use ">" because we want to include the end-time point.
-					if(current.getTime() > to.getTime()) break;
+                    // Note that we use ">" because we want to include the end-time point.
+                    if (current.getTime() > to.getTime()) break;
 
-					/* BUG-2: current is moved backwards producing a dead-lock! (crashes chrome/IE/firefox)
-					 * SEE: https://github.com/taitems/jQuery.Gantt/issues/62
+                    /* BUG-2: current is moved backwards producing a dead-lock! (crashes chrome/IE/firefox)
+                     * SEE: https://github.com/taitems/jQuery.Gantt/issues/62
                     if (current.getDay() !== ret[i].getDay()) {
                        current.setHours(0);
                     }
-					*/
+                    */
 
                     // GR Fix Begin
-					current = ktkGetNextDate(dayStartTime, scaleStep);
+                    current = ktkGetNextDate(dayStartTime, scaleStep);
                     // GR Fix End
 
                     i++;
@@ -1609,9 +1619,9 @@
 
             // Deserialize a date from a string
             dateDeserialize: function (dateStr) {
-                var newDate = new Date();
-                newDate.setTime(dateStr.replace(/[^0-9]/g, ""));
-                return newDate;
+                var date = dateStr.replace(/\/Date\((.*)\)\//, "$1");
+                date = $.isNumeric(date) ? parseInt(date, 10) : $.trim(date);
+                return new Date( date );
             },
 
             // Generate an id for a date
@@ -1740,17 +1750,3 @@
 
     };
 })(jQuery);
-
-function ktkGetNextDate(currentDate, scaleStep) {
-	for(var minIncrements = 1;; minIncrements++) {
-		var nextDate = new Date(currentDate);
-		nextDate.setHours(currentDate.getHours() + scaleStep * minIncrements);
-
-		if(nextDate.getTime() != currentDate.getTime()) {
-			return nextDate;
-		}
-
-		// If code reaches here, it's because current didn't really increment (invalid local time) because of daylight-saving adjustments
-		// => retry adding 2, 3, 4 hours, and so on (until nextDate > current)
-	}
-}
