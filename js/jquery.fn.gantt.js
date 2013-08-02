@@ -48,6 +48,16 @@
             scrollToToday: true
         };
 
+        /**
+        * Extend options with default values
+        */
+        if (options) {
+            $.extend(settings, options);
+        }
+
+        // can't use cookie if don't have `$.cookie`
+        settings.useCookie = settings.useCookie && $.isFunction($.cookie);
+
         // custom selector `:findday` used to match on specified day in ms.
         //
         // The selector is passed a date in ms and elements are added to the
@@ -1694,13 +1704,6 @@
 
 
         this.each(function () {
-            /**
-            * Extend options with default values
-            */
-            if (options) {
-                $.extend(settings, options);
-            }
-
             this.data = null;        // Received data
             this.pageNum = 0;        // Current page number
             this.pageCount = 0;      // Available pages count
