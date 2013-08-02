@@ -20,8 +20,8 @@
 //      });
 
 //
-/*jshint shadow:true, laxbreak:true, browser:true, jquery:true */
-(function ($) {
+/*jshint shadow:true, laxbreak:true, jquery:true, strict:true, trailing:true */
+(function ($, undefined) {
 
     "use strict";
 
@@ -362,19 +362,15 @@
                 var dataPanel = $('<div class="dataPanel" style="width: ' + width + 'px;"/>');
 
                 // Handle mousewheel events for scrolling the data panel
-                var mousewheelevt = (/Firefox/i.test(navigator.userAgent)) ? "DOMMouseScroll" : "mousewheel";
-                if (document.attachEvent) {
-                    element.attachEvent("on" + mousewheelevt, function (e) { core.wheelScroll(element, e); });
-                } else if (document.addEventListener) {
-                    element.addEventListener(mousewheelevt, function (e) { core.wheelScroll(element, e); }, false);
-                }
+                var wheel = 'onwheel' in element ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
+                $(element).on(wheel, function (e) { core.wheelScroll(element, e); });
 
                 // Handle click events and dispatch to registered `onAddClick`
                 // function
                 dataPanel.click(function (e) {
 
                     e.stopPropagation();
-                    var corrX, corrY;
+                    var corrX/* <- never used? */, corrY;
                     var leftpanel = $(element).find(".fn-gantt .leftPanel");
                     var datapanel = $(element).find(".fn-gantt .dataPanel");
                     switch (settings.scale) {
@@ -428,13 +424,14 @@
 
             // Creates and return the right panel containing the year/week/day
             // header
-            rightPanel: function (element, leftPanel) {
+            rightPanel: function (element, leftPanel /* <- never used? */) {
 
                 var range = null;
                 // Days of the week have a class of one of
-                // `sn` (Saturday), `sa` (Sunday), or `wd` (Weekday)
+                // `sn` (Sunday), `sa` (Saturday), or `wd` (Weekday)
                 var dowClass = [" sn", " wd", " wd", " wd", " wd", " wd", " sa"];
-                var gridDowClass = [" sn", "", "", "", "", "", " sa"];
+                //TODO: was someone planning to allow styles to stretch to the bottom of the chart?
+                //var gridDowClass = [" sn", "", "", "", "", "", " sa"];
 
                 var yearArr = ['<div class="row"/>'];
                 var daysInYear = 0;
@@ -698,7 +695,7 @@
                         var dateBefore = ktkGetNextDate(range[0], -1);
                         var year = dateBefore.getFullYear();
                         var month = dateBefore.getMonth();
-                        var day = dateBefore;
+                        var day = dateBefore; // <- never used?
 
                         for (var i = 0; i < range.length; i++) {
                             var rday = range[i];
@@ -1010,7 +1007,7 @@
 
             // **Fill the Chart**
             // Parse the data and fill the data panel
-            fillData: function (element, datapanel, leftpanel) {
+            fillData: function (element, datapanel, leftpanel /* <- never used? */) {
                 var invertColor = function (colStr) {
                     try {
                         colStr = colStr.replace("rgb(", "").replace(")", "");
@@ -1323,7 +1320,7 @@
 
             // Move chart via mousewheel
             wheelScroll: function (element, e) {
-                var delta = e.detail ? e.detail * (-50) : e.wheelDelta / 120 * 50;
+                var delta = - 50 * ('detail' in e ? e.detail : - 1/120 * e.originalEvent.wheelDelta);
 
                 core.scrollPanel(element, delta);
 
@@ -1526,7 +1523,7 @@
             // Return an array of Date objects between `from` and `to`
             parseDateRange: function (from, to) {
                 var current = new Date(from.getTime());
-                var end = new Date(to.getTime());
+                var end = new Date(to.getTime()); // <- never used?
                 var ret = [];
                 var i = 0;
                 do {
@@ -1595,7 +1592,7 @@
             parseWeeksRange: function (from, to) {
 
                 var current = new Date(from);
-                var end = new Date(to);
+                var end = new Date(to); // <- never used?
 
                 var ret = [];
                 var i = 0;
@@ -1615,7 +1612,7 @@
             parseMonthsRange: function (from, to) {
 
                 var current = new Date(from);
-                var end = new Date(to);
+                var end = new Date(to); // <- never used?
 
                 var ret = [];
                 var i = 0;
