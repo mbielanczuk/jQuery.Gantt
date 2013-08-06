@@ -35,7 +35,6 @@
             itemsPerPage: 7,
             months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
             dow: ["S", "M", "T", "W", "T", "F", "S"],
-            startPos: new Date(),
             navigate: "buttons",
             scale: "days",
             useCookie: false,
@@ -286,24 +285,8 @@
 
                 // Scroll the grid to today's date
                 if (settings.scrollToToday) {
-                    var startPos = Math.round((settings.startPos / 1000 - element.dateStart / 1000) / 86400) - 2;
-                    if ((startPos > 0 && element.hPosition !== 0)) {
-                        if (element.scaleOldWidth) {
-                            mLeft = ($dataPanel.width() - $rightPanel.width());
-                            hPos = mLeft * element.hPosition / element.scaleOldWidth;
-                            hPos = hPos > 0 ? 0 : hPos;
-                            $dataPanel.css({ "margin-left": hPos + "px" });
-                            element.scrollNavigation.panelMargin = hPos;
-                            element.hPosition = hPos;
-                            element.scaleOldWidth = null;
-                        } else {
-                            $dataPanel.css({ "margin-left": element.hPosition + "px" });
-                            element.scrollNavigation.panelMargin = element.hPosition;
-                        }
-                        core.repositionLabel(element);
-                    } else {
-                        core.repositionLabel(element);
-                    }
+                    core.navigateTo(element, 'now');
+                    core.scrollPanel(element, 0);
                 // or, scroll the grid to the left most date in the panel
                 } else {
                     if ((element.hPosition !== 0)) {
