@@ -1419,11 +1419,11 @@
                     var eh = $(element).outerHeight();
 
                     if (!element.loader) {
-                        element.loader = $('<div class="fn-gantt-loader" style="position: absolute; top: ' + eo.top + 'px; left: ' + eo.left + 'px; width: ' + ew + 'px; height: ' + eh + 'px;">'
+                        element.loader = $('<div class="fn-gantt-loader">'
                         + '<div class="fn-gantt-loader-spinner"><span>' + settings.waitText + '</span></div></div>');
                     }
-                    $("body").append(element.loader);
-                    setTimeout(fn, 100);
+                    $(element).append(element.loader);
+                    setTimeout(fn, 500);
 
                 } else {
                     if (element.loader) {

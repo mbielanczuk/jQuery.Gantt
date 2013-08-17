@@ -2,6 +2,7 @@
     width: 100%;
     margin: 20px auto;
     border: 14px solid #ddd;
+    position: relative;
         -webkit-border-radius: 6px;
         -moz-border-radius: 6px;
         border-radius: 6px;
@@ -394,21 +395,28 @@
 }
 
 .fn-gantt-loader {
-    background-image: url(../img/loader_bg.png);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bf000000', endColorstr='#bf000000',GradientType=0 );
+    background: rgba(0,0,0,0.75);
     z-index: 30;
 }
-
-.fn-gantt-loader-spinner {
-    width: 100px;
-    height: 20px;
-    position: absolute;
-    margin-left: 50%;
-    margin-top: 50%;
-    text-align: center;
-}
 .fn-gantt-loader-spinner span {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    height: 1em;
+    line-height: 1em;
     color: #fff;
-    font-size: 12px;
+    font-size: 1em;
     font-weight: bold;
 }
 
