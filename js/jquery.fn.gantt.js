@@ -1765,6 +1765,7 @@
                     if (current.getDay() !== ret[i].getDay()) {
                         current.setHours(0);
                     }
+                    current.setMinutes(0);
 
                     i++;
                 } while (current.getTime() <= to.getTime());
