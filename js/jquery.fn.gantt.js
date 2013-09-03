@@ -55,7 +55,7 @@
         }
 
         // can't use cookie if don't have `$.cookie`
-        settings.useCookie = settings.useCookie && $.isFunction($.cookie);
+        settings.useCookie = settings.useCookie && $.isFunction($.prototype.cookie);
 
         // custom selector `:findday` used to match on specified day in ms.
         //
@@ -1607,10 +1607,12 @@
                 return ret;
             },
 
-            // Deserialize a date from a string
-            dateDeserialize: function (dateStr) {
-                var date = dateStr.replace(/\/Date\((.*)\)\//, "$1");
-                date = $.isNumeric(date) ? parseInt(date, 10) : $.trim(date);
+            // Deserialize a date from a string or integer
+            dateDeserialize: function (date) {
+                if (typeof date === "string") {
+                    date = date.replace(/\/Date\((.*)\)\//, "$1");
+                    date = $.isNumeric(date) ? parseInt(date, 10) : $.trim(date);
+                }
                 return new Date( date );
             },
 
