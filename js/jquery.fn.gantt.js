@@ -55,7 +55,7 @@
         }
 
         // can't use cookie if don't have `$.cookie`
-        settings.useCookie = settings.useCookie && $.isFunction($.prototype.cookie);
+        settings.useCookie = settings.useCookie && $.isFunction($.cookie);
 
         // custom selector `:findday` used to match on specified day in ms.
         //
