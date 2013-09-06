@@ -117,7 +117,7 @@
 
         // `getRepDate` returns the seconds since the epoch for a given date
         // depending on the active scale
-        Date.prototype.genRepDate = function () {
+        Date.prototype.getRepDate = function () {
             switch (settings.scale) {
                 case "hours":
                     return this.getTime();
@@ -509,7 +509,7 @@
                                     + day_class
                                     + '" id="dh-'
                                     + rday.getTime()
-                                    + '"  offset="' + i * tools.getCellSize() + '"  repdate="' + rday.genRepDate() + '"><div class="fn-label">'
+                                    + '"  offset="' + i * tools.getCellSize() + '"  repdate="' + rday.getRepDate() + '"><div class="fn-label">'
                                     + rday.getHours()
                                     + '</div></div>');
                         }
@@ -595,7 +595,7 @@
 
                             // Fill weeks
                             dayArr.push('<div class="row day wd" '
-                                    + ' id="' + rday.getWeekId() + '" offset="' + i * tools.getCellSize() + '" repdate="' + rday.genRepDate() + '"> '
+                                    + ' id="' + rday.getWeekId() + '" offset="' + i * tools.getCellSize() + '" repdate="' + rday.getRepDate() + '"> '
                                     + ' <div class="fn-label">' + rday.getWeekOfYear() + '</div></div>');
                         }
 
@@ -643,7 +643,7 @@
                                 daysInYear = 0;
                             }
                             daysInYear++;
-                            monthArr.push('<div class="row day wd" id="dh-' + tools.genId(rday.getTime()) + '" offset="' + i * tools.getCellSize() + '" repdate="' + rday.genRepDate() + '">' + (1 + rday.getMonth()) + '</div>');
+                            monthArr.push('<div class="row day wd" id="dh-' + tools.genId(rday.getTime()) + '" offset="' + i * tools.getCellSize() + '" repdate="' + rday.getRepDate() + '">' + (1 + rday.getMonth()) + '</div>');
                         }
 
 
@@ -716,10 +716,10 @@
                             }
 
                             dayArr.push('<div class="row date ' + day_class + '" '
-                                    + ' id="dh-' + tools.genId(rday.getTime()) + '" offset="' + i * tools.getCellSize() + '" repdate="' + rday.genRepDate() + '"> '
+                                    + ' id="dh-' + tools.genId(rday.getTime()) + '" offset="' + i * tools.getCellSize() + '" repdate="' + rday.getRepDate() + '"> '
                                     + ' <div class="fn-label">' + rday.getDate() + '</div></div>');
                             dowArr.push('<div class="row day ' + day_class + '" '
-                                    + ' id="dw-' + tools.genId(rday.getTime()) + '"  repdate="' + rday.genRepDate() + '"> '
+                                    + ' id="dw-' + tools.genId(rday.getTime()) + '"  repdate="' + rday.getRepDate() + '"> '
                                     + ' <div class="fn-label">' + settings.dow[getDay] + '</div></div>');
                         } //for
 
