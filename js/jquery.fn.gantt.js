@@ -446,7 +446,7 @@
                         var month = range[0].getMonth();
                         var day = range[0];
 
-                        for (var i = 0; i < range.length; i++) {
+                        for (var i = 0, len = range.length; i < len; i++) {
                             var rday = range[i];
 
                             // Fill years
@@ -564,7 +564,7 @@
                         var month = range[0].getMonth();
                         var day = range[0];
 
-                        for (var i = 0; i < range.length; i++) {
+                        for (var i = 0, len = range.length; i < len; i++) {
                             var rday = range[i];
 
                             // Fill years
@@ -628,7 +628,7 @@
                         var month = range[0].getMonth();
                         var day = range[0];
 
-                        for (var i = 0; i < range.length; i++) {
+                        for (var i = 0, len = range.length; i < len; i++) {
                             var rday = range[i];
 
                             // Fill years
@@ -680,7 +680,7 @@
                         var month = dateBefore.getMonth();
                         var day = dateBefore; // <- never used?
 
-                        for (var i = 0; i < range.length; i++) {
+                        for (var i = 0, len = range.length; i < len; i++) {
                             var rday = range[i];
 
                             // Fill years
