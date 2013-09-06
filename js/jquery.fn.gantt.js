@@ -485,12 +485,11 @@
                             var rgetDay = rday.getDay();
                             var getDay = day.getDay();
                             var day_class = dowClass[rgetDay];
-                            var getTime = day.getTime();
                             if (holidays.indexOf((new Date(rday.getFullYear(), rday.getMonth(), rday.getDate())).getTime()) > -1) {
                                 day_class = "holiday";
                             }
                             if (rgetDay !== getDay) {
-
+                                var getTime = day.getTime();
                                 var day_class2 = (today - day === 0) ? ' today' : (holidays.indexOf(getTime) > -1) ? "holiday" : dowClass[getDay];
 
                                 dayArr.push('<div class="row date ' + day_class2 + '" '
@@ -1641,6 +1640,22 @@
                 }
             },
 
+            // Returns true when the given date appears in the array of holidays, if provided
+            //TODO: test this! -UA
+            isHoliday: (function() {
+                if (settings.holidays) {
+                  return function () { return false; };
+                }
+                var holidays = {};
+                for (var i = 0, h = settings.holidays, day, len = h.length; i < len; i++) {
+                    day = dateDeserialize( h[i] );
+                    holidays[ day.setHours(0, 0, 0, 0) ] = true;
+                }
+                return function(date) {
+                    return !!holidays[date];
+                };
+            })(),
+
             // Get the current cell size
             _getCellSize: null,
             getCellSize: function () {
@@ -1654,7 +1669,7 @@
                 return tools._getCellSize;
             },
 
-            // Get the current size of the rigth panel
+            // Get the current size of the right panel
             getRightPanelSize: function () {
                 $("body").append(
                     $('<div style="display: none; position: absolute;" class="fn-gantt" id="measureCellWidth"><div class="rightPanel"></div></div>')
