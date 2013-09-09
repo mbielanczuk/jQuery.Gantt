@@ -412,7 +412,7 @@
                 var range = null;
                 // Days of the week have a class of one of
                 // `sn` (Sunday), `sa` (Saturday), or `wd` (Weekday)
-                var dowClass = [" sn", " wd", " wd", " wd", " wd", " wd", " sa"];
+                var dowClass = ["sn", "wd", "wd", "wd", "wd", "wd", "sa"];
                 //TODO: was someone planning to allow styles to stretch to the bottom of the chart?
                 //var gridDowClass = [" sn", "", "", "", "", "", " sa"];
 
@@ -433,7 +433,6 @@
 
                 var today = new Date();
                 today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                var holidays = settings.holidays ? settings.holidays.join() : '';
 
                 // Setup the headings based on the chosen `settings.scale`
                 switch (settings.scale) {
@@ -485,12 +484,11 @@
                             var rgetDay = rday.getDay();
                             var getDay = day.getDay();
                             var day_class = dowClass[rgetDay];
-                            if (holidays.indexOf((new Date(rday.getFullYear(), rday.getMonth(), rday.getDate())).getTime()) > -1) {
+                            if (tools.isHoliday(rday)) {
                                 day_class = "holiday";
                             }
                             if (rgetDay !== getDay) {
-                                var getTime = day.getTime();
-                                var day_class2 = (today - day === 0) ? ' today' : (holidays.indexOf(getTime) > -1) ? "holiday" : dowClass[getDay];
+                                var day_class2 = (today - day === 0) ? "today" : tools.isHoliday( day.getTime() ) ? "holiday" : dowClass[getDay];
 
                                 dayArr.push('<div class="row date ' + day_class2 + '" '
                                         + ' style="width: ' + tools.getCellSize() * hoursInDay + 'px;"> '
@@ -508,14 +506,14 @@
                                     + day_class
                                     + '" id="dh-'
                                     + rday.getTime()
-                                    + '"  offset="' + i * tools.getCellSize() + '"  repdate="' + rday.getRepDate() + '"><div class="fn-label">'
+                                    + '"  offset="' + i * tools.getCellSize() + '" repdate="' + rday.getRepDate() + '"><div class="fn-label">'
                                     + rday.getHours()
                                     + '</div></div>');
                         }
 
 
                         // Last year
-                       yearArr.push(
+                        yearArr.push(
                             '<div class="row header year" style="width: '
                             + tools.getCellSize() * daysInYear + 'px;"><div class="fn-label">'
                             + year
@@ -530,7 +528,7 @@
 
                         var day_class = dowClass[day.getDay()];
 
-                        if (holidays.indexOf((new Date(day.getFullYear(), day.getMonth(), day.getDate())).getTime()) > -1) {
+                        if ( tools.isHoliday(day) ) {
                             day_class = "holiday";
                         }
 
@@ -710,7 +708,7 @@
 
                             var getDay = rday.getDay();
                             var day_class = dowClass[getDay];
-                            if (holidays.indexOf((new Date(rday.getFullYear(), rday.getMonth(), rday.getDate())).getTime()) > -1) {
+                            if ( tools.isHoliday(rday) ) {
                                 day_class = "holiday";
                             }
 
@@ -1643,16 +1641,23 @@
             // Returns true when the given date appears in the array of holidays, if provided
             //TODO: test this! -UA
             isHoliday: (function() {
+                // short-circuits the function if no holidays option was passed
                 if (settings.holidays) {
                   return function () { return false; };
                 }
+                // normalizes holidays into millisecond values (limiting scope to just this function)
                 var holidays = {};
-                for (var i = 0, h = settings.holidays, day, len = h.length; i < len; i++) {
+                for (var i = 0, h = settings.holidays, len = h.length, day; i < len; i++) {
                     day = dateDeserialize( h[i] );
                     holidays[ day.setHours(0, 0, 0, 0) ] = true;
                 }
+                // returns the function that will be used to check for holidayness of a given date
                 return function(date) {
-                    return !!holidays[date];
+                    return !!holidays[
+                      $.isNumeric(date) ?
+                      date :
+                      ( new Date(date.getFullYear(), date.getMonth(), date.getDate()) ).getTime()
+                    ];
                 };
             })(),
 
