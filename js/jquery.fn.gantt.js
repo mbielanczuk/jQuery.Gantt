@@ -1640,9 +1640,9 @@
 
             // Returns true when the given date appears in the array of holidays, if provided
             //TODO: test this! -UA
-            isHoliday: (function() {
+            isHoliday: (function() { // IIFE
                 // short-circuits the function if no holidays option was passed
-                if (settings.holidays) {
+                if (!settings.holidays) {
                   return function () { return false; };
                 }
                 // normalizes holidays into millisecond values (limiting scope to just this function)
