@@ -1660,6 +1660,7 @@
                       holidays = tools._datesToDays( settings.holidays );
                     }
                     return !!holidays[
+                      // assumes numeric dates are already normalized to start-of-day
                       $.isNumeric(date) ?
                       date :
                       ( new Date(date.getFullYear(), date.getMonth(), date.getDate()) ).getTime()
