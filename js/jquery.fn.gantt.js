@@ -1638,19 +1638,22 @@
                 }
             },
 
+            // normalizes an array of dates into a map of start-of-day millisecond values
+            _datesToDays: function ( dates ) {
+                var dayMap = {};
+                for (var i = 0, len = dates.length, day; i < len; i++) {
+                    day = tools.dateDeserialize( dates[i] );
+                    dayMap[ day.setHours(0, 0, 0, 0) ] = true;
+                }
+                return dayMap;
+            },
             // Returns true when the given date appears in the array of holidays, if provided
-            //TODO: test this! -UA
             isHoliday: (function() { // IIFE
                 // short-circuits the function if no holidays option was passed
                 if (!settings.holidays) {
                   return function () { return false; };
                 }
-                // normalizes holidays into millisecond values (limiting scope to just this function)
-                var holidays = {};
-                for (var i = 0, h = settings.holidays, len = h.length, day; i < len; i++) {
-                    day = dateDeserialize( h[i] );
-                    holidays[ day.setHours(0, 0, 0, 0) ] = true;
-                }
+                var holidays = tools._datesToDays( settings.holidays );
                 // returns the function that will be used to check for holidayness of a given date
                 return function(date) {
                     return !!holidays[
