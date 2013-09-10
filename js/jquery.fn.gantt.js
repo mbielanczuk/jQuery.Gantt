@@ -1653,9 +1653,12 @@
                 if (!settings.holidays) {
                   return function () { return false; };
                 }
-                var holidays = tools._datesToDays( settings.holidays );
+                var holidays = false;
                 // returns the function that will be used to check for holidayness of a given date
                 return function(date) {
+                    if (!holidays) {
+                      holidays = tools._datesToDays( settings.holidays );
+                    }
                     return !!holidays[
                       $.isNumeric(date) ?
                       date :
