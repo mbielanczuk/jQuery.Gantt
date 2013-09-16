@@ -105,6 +105,7 @@
     background-image: url(../img/grid.png);
     background-repeat: repeat;
     background-position: 24px 24px;
+    position: relative;
 }
 .fn-gantt .day, .fn-gantt .date {
     overflow: visible;
