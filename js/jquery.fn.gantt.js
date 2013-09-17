@@ -808,9 +808,7 @@
                                             .append($('<a class="nav-slider-button" />')
                                                 )
                                                 .mousedown(function (e) {
-                                                    if (e.preventDefault) {
-                                                        e.preventDefault();
-                                                    }
+                                                    e.preventDefault();
                                                     element.scrollNavigation.scrollerMouseDown = true;
                                                     core.sliderScroll(element, e);
                                                 })
@@ -1300,18 +1298,22 @@
 
             // Move chart via mousewheel
             wheelScroll: function (element, e) {
-                var delta = - 50 * ('detail' in e ? e.detail : - 1/120 * e.originalEvent.wheelDelta);
+                e.preventDefault(); // e is a jQuery Event
 
-                core.scrollPanel(element, delta);
+                // attempts to normalize scroll wheel velocity
+                var delta = ( 'detail' in e ? e.detail :
+                              'wheelDelta' in e.originalEvent ? - 1/120 * e.originalEvent.wheelDelta :
+                              e.originalEvent.deltaY ? e.originalEvent.deltaY / Math.abs(e.originalEvent.deltaY) :
+                              e.originalEvent.detail );
+
+                // simpler normalization, ignoring per-device/browser/platform acceleration & semantic variations
+                //var delta = e.detail || - (e = e.originalEvent).wheelData || e.deltaY /* || e.deltaX */ || e.detail;
+                //delta = ( delta / Math.abs(delta) ) || 0;
+
+                core.scrollPanel(element, -50 * delta);
 
                 clearTimeout(element.scrollNavigation.repositionDelay);
                 element.scrollNavigation.repositionDelay = setTimeout(core.repositionLabel, 50, element);
-
-                if (e.preventDefault) {
-                    e.preventDefault();
-                } else {
-                    return false;
-                }
             },
 
             // Move chart via slider control
