@@ -204,19 +204,23 @@
         // Core object is responsible for navigation and rendering
         var core = {
             // Return the element whose topmost point lies under the given point
-            // Normalizes for IE
-            elementFromPoint: function (x, y) {
-
-                if (!$.support.boxModel) {
+            // Normalizes for old browsers
+            elementFromPoint: (function(){ // IIFE
+                // version for normal browsers
+                if (document.compatMode === "CSS1Compat") {
+                    return function (x, y) {
+                        x -= window.pageXOffset;
+                        y -= window.pageYOffset;
+                        return document.elementFromPoint(x, y);
+                    };
+                }
+                // version for older browsers
+                return function (x, y) {
                     x -= $(document).scrollLeft();
                     y -= $(document).scrollTop();
-                } else {
-                    x -= window.pageXOffset;
-                    y -= window.pageYOffset;
-                }
-
-                return document.elementFromPoint(x, y);
-            },
+                    return document.elementFromPoint(x, y);
+                };
+            })(),
 
             // **Create the chart**
             create: function (element) {
