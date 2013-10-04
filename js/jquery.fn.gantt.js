@@ -939,7 +939,7 @@
                 var bar = $('<div class="bar"><div class="fn-label">' + label + '</div></div>')
                         .addClass(cls)
                         .css({
-                            width: ((cellWidth * days) - barMarg) + 5
+                            width: ((cellWidth * days) - barMarg) + 3
                         })
                         .data("dataObj", dataObj);
 
@@ -1705,7 +1705,7 @@
             // Get the current margin size of the progress bar
             _getProgressBarMargin: null,
             getProgressBarMargin: function () {
-                if (!tools._getProgressBarMargin) {
+                if (!tools._getProgressBarMargin && tools._getProgressBarMargin !== 0) {
                     $("body").append(
                         $('<div style="display: none; position: absolute;" id="measureBarWidth" ><div class="fn-gantt"><div class="rightPanel"><div class="dataPanel"><div class="row day"><div class="bar" /></div></div></div></div></div>')
                     );
