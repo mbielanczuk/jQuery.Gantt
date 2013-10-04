@@ -939,7 +939,7 @@
                 var bar = $('<div class="bar"><div class="fn-label">' + label + '</div></div>')
                         .addClass(cls)
                         .css({
-                            width: ((cellWidth * days) - barMarg) + 3
+                            width: ((cellWidth * days) - barMarg) + 2
                         })
                         .data("dataObj", dataObj);
 
