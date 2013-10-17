@@ -269,7 +269,7 @@
 
                 element.gantt = $('<div class="fn-gantt" />').append(content);
 
-                $(element).html(element.gantt);
+                $(element).html(element.gantt.html());
 
                 element.scrollNavigation.panelMargin = parseInt($dataPanel.css("margin-left").replace("px", ""), 10);
                 element.scrollNavigation.panelMaxPos = ($dataPanel.width() - $rightPanel.width());
@@ -997,7 +997,7 @@
                         var R = parseInt(rgbArr[0], 10);
                         var G = parseInt(rgbArr[1], 10);
                         var B = parseInt(rgbArr[2], 10);
-                        var gray = Math.round((255 - (0.299 * R + 0.587 * G + 0.114 * B)) * 0.9, 1);
+                        var gray = Math.round((255 - (0.299 * R + 0.587 * G + 0.114 * B)) * 0.9);
                         return "rgb(" + gray + ", " + gray + ", " + gray + ")";
                     } catch (err) {
                         return "";
