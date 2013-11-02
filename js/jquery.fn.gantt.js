@@ -762,7 +762,7 @@
                     ganttNavigate = $('<div class="navigate" />')
                         .append($('<div class="nav-slider" />')
                             .append($('<div class="nav-slider-left" />')
-                                .append($('<span role="button" class="nav-link nav-page-back"/>')
+                                .append($('<button type="button" class="nav-link nav-page-back"/>')
                                     .html('&lt;')
                                     .click(function () {
                                         core.navigatePage(element, -1);
@@ -770,17 +770,17 @@
                                 .append($('<div class="page-number"/>')
                                         .append($('<span/>')
                                             .html(element.pageNum + 1 + ' of ' + element.pageCount)))
-                                .append($('<span role="button" class="nav-link nav-page-next"/>')
+                                .append($('<button type="button" class="nav-link nav-page-next"/>')
                                     .html('&gt;')
                                     .click(function () {
                                         core.navigatePage(element, 1);
                                     }))
-                                .append($('<span role="button" class="nav-link nav-now"/>')
+                                .append($('<button type="button" class="nav-link nav-now"/>')
                                     .html('&#9679;')
                                     .click(function () {
                                         core.navigateTo(element, 'now');
                                     }))
-                                .append($('<span role="button" class="nav-link nav-prev-week"/>')
+                                .append($('<button type="button" class="nav-link nav-prev-week"/>')
                                     .html('&lt;&lt;')
                                     .click(function () {
                                         if (settings.scale === 'hours') {
@@ -793,7 +793,7 @@
                                             core.navigateTo(element, tools.getCellSize() * 6);
                                         }
                                     }))
-                                .append($('<span role="button" class="nav-link nav-prev-day"/>')
+                                .append($('<button type="button" class="nav-link nav-prev-day"/>')
                                     .html('&lt;')
                                     .click(function () {
                                         if (settings.scale === 'hours') {
@@ -825,7 +825,7 @@
                                             )
                                         )
                             .append($('<div class="nav-slider-right" />')
-                                .append($('<span role="button" class="nav-link nav-next-day"/>')
+                                .append($('<button type="button" class="nav-link nav-next-day"/>')
                                     .html('&gt;')
                                     .click(function () {
                                         if (settings.scale === 'hours') {
@@ -838,7 +838,7 @@
                                             core.navigateTo(element, tools.getCellSize() * -3);
                                         }
                                     }))
-                            .append($('<span role="button" class="nav-link nav-next-week"/>')
+                            .append($('<button type="button" class="nav-link nav-next-week"/>')
                                     .html('&gt;&gt;')
                                     .click(function () {
                                         if (settings.scale === 'hours') {
@@ -851,12 +851,12 @@
                                             core.navigateTo(element, tools.getCellSize() * -6);
                                         }
                                     }))
-                                .append($('<span role="button" class="nav-link nav-zoomIn"/>')
+                                .append($('<button type="button" class="nav-link nav-zoomIn"/>')
                                     .html('&#43;')
                                     .click(function () {
                                         core.zoomInOut(element, -1);
                                     }))
-                                .append($('<span role="button" class="nav-link nav-zoomOut"/>')
+                                .append($('<button type="button" class="nav-link nav-zoomOut"/>')
                                     .html('&#45;')
                                     .click(function () {
                                         core.zoomInOut(element, 1);
@@ -869,7 +869,7 @@
                 // Button navigation is provided by setting `settings.navigation='buttons'`
                 } else {
                     ganttNavigate = $('<div class="navigate" />')
-                        .append($('<span role="button" class="nav-link nav-page-back"/>')
+                        .append($('<button type="button" class="nav-link nav-page-back"/>')
                             .html('&lt;')
                             .click(function () {
                                 core.navigatePage(element, -1);
@@ -877,52 +877,52 @@
                         .append($('<div class="page-number"/>')
                                 .append($('<span/>')
                                     .html(element.pageNum + 1 + ' of ' + element.pageCount)))
-                        .append($('<span role="button" class="nav-link nav-page-next"/>')
+                        .append($('<button type="button" class="nav-link nav-page-next"/>')
                             .html('&gt;')
                             .click(function () {
                                 core.navigatePage(element, 1);
                             }))
-                        .append($('<span role="button" class="nav-link nav-begin"/>')
+                        .append($('<button type="button" class="nav-link nav-begin"/>')
                             .html('&#124;&lt;')
                             .click(function () {
                                 core.navigateTo(element, 'begin');
                             }))
-                        .append($('<span role="button" class="nav-link nav-prev-week"/>')
+                        .append($('<button type="button" class="nav-link nav-prev-week"/>')
                             .html('&lt;&lt;')
                             .click(function () {
                                 core.navigateTo(element, tools.getCellSize() * 7);
                             }))
-                        .append($('<span role="button" class="nav-link nav-prev-day"/>')
+                        .append($('<button type="button" class="nav-link nav-prev-day"/>')
                             .html('&lt;')
                             .click(function () {
                                 core.navigateTo(element, tools.getCellSize());
                             }))
-                        .append($('<span role="button" class="nav-link nav-now"/>')
+                        .append($('<button type="button" class="nav-link nav-now"/>')
                             .html('&#9679;')
                             .click(function () {
                                 core.navigateTo(element, 'now');
                             }))
-                        .append($('<span role="button" class="nav-link nav-next-day"/>')
+                        .append($('<button type="button" class="nav-link nav-next-day"/>')
                             .html('&gt;')
                             .click(function () {
                                 core.navigateTo(element, tools.getCellSize() * -1);
                             }))
-                        .append($('<span role="button" class="nav-link nav-next-week"/>')
+                        .append($('<button type="button" class="nav-link nav-next-week"/>')
                             .html('&gt;&gt;')
                             .click(function () {
                                 core.navigateTo(element, tools.getCellSize() * -7);
                             }))
-                        .append($('<span role="button" class="nav-link nav-end"/>')
+                        .append($('<button type="button" class="nav-link nav-end"/>')
                             .html('&gt;&#124;')
                             .click(function () {
                                 core.navigateTo(element, 'end');
                             }))
-                        .append($('<span role="button" class="nav-link nav-zoomIn"/>')
+                        .append($('<button type="button" class="nav-link nav-zoomIn"/>')
                             .html('&#43;')
                             .click(function () {
                                 core.zoomInOut(element, -1);
                             }))
-                        .append($('<span role="button" class="nav-link nav-zoomOut"/>')
+                        .append($('<button type="button" class="nav-link nav-zoomOut"/>')
                             .html('&#45;')
                             .click(function () {
                                 core.zoomInOut(element, 1);
