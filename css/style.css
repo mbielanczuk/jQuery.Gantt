@@ -105,6 +105,7 @@
     background-image: url(../img/grid.png);
     background-repeat: repeat;
     background-position: 24px 24px;
+    position: relative;
 }
 .fn-gantt .day, .fn-gantt .date {
     overflow: visible;
@@ -181,7 +182,7 @@
 .fn-gantt .bar {
     background-color: #D0E4FD;
     height: 18px;
-    margin: 4px 3px 3px 3px;
+    margin: 0px 3px 3px 0px;
     position: absolute;
     z-index: 10;
     text-align: center;
@@ -402,6 +403,7 @@
     top: 0;
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bf000000', endColorstr='#bf000000',GradientType=0 );
     background: rgba(0,0,0,0.75);
+    cursor: wait;
     z-index: 30;
 }
 .fn-gantt-loader-spinner span {

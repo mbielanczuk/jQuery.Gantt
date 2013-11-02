@@ -1,12 +1,12 @@
-﻿<!doctype html>
-<html lang="en-au">
+﻿<!DOCTYPE html>
+<html lang="en">
     <head>
         <title>jQuery.Gantt</title>
 		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" >
-        <link rel="stylesheet" href="css/style.css" />
-        <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="http://taitems.github.com/UX-Lab/core/css/prettify.css" />
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1">
+        <link href="css/style.css" type="text/css" rel="stylesheet">
+        <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+        <link href="http://taitems.github.com/UX-Lab/core/css/prettify.css" rel="stylesheet" type="text/css">
 		<style type="text/css">
 			body {
 				font-family: Helvetica, Arial, sans-serif;
@@ -30,6 +30,14 @@
 			table th:first-child {
 				width: 150px;
 			}
+      /* Bootstrap 3.0 re-reset */
+      .fn-gantt *,
+      .fn-gantt *:after,
+      .fn-gantt *:before {
+        -webkit-box-sizing: content-box;
+           -moz-box-sizing: content-box;
+                box-sizing: content-box;
+      }
 		</style>
     </head>
     <body>
@@ -108,7 +116,7 @@ $(".selector").gantt({
 							<code>source</code>
 						</td>
 						<td>
-							null
+							[]
 						</td>
 						<td>
 							Array, String (url)
@@ -204,7 +212,7 @@ $(".selector").gantt({
 					</tr>
 					<tr>
 						<td>
-						    <code>onItemClick: </code>
+						    <code>onItemClick</code>
                             </td>
 						<td>
 							<code>function (data) { return; }</code></td>
@@ -427,13 +435,11 @@ values: [{
 
 		</div>
 
-    </body>
 	<script src="js/jquery.min.js"></script>
 	<script src="js/jquery.fn.gantt.js"></script>
-	<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 	<script src="http://taitems.github.com/UX-Lab/core/js/prettify.js"></script>
-    <script>
-
+  <script>
 		$(function() {
 
 			"use strict";
@@ -445,7 +451,7 @@ values: [{
 					values: [{
 						from: "/Date(1320192000000)/",
 						to: "/Date(1322401600000)/",
-						label: "Requirement Gathering", 
+						label: "Requirement Gathering",
 						customClass: "ganttRed"
 					}]
 				},{
@@ -454,7 +460,7 @@ values: [{
 					values: [{
 						from: "/Date(1322611200000)/",
 						to: "/Date(1323302400000)/",
-						label: "Scoping", 
+						label: "Scoping",
 						customClass: "ganttRed"
 					}]
 				},{
@@ -463,7 +469,7 @@ values: [{
 					values: [{
 						from: "/Date(1323802400000)/",
 						to: "/Date(1325685200000)/",
-						label: "Development", 
+						label: "Development",
 						customClass: "ganttGreen"
 					}]
 				},{
@@ -472,7 +478,7 @@ values: [{
 					values: [{
 						from: "/Date(1325685200000)/",
 						to: "/Date(1325695200000)/",
-						label: "Showcasing", 
+						label: "Showcasing",
 						customClass: "ganttBlue"
 					}]
 				},{
@@ -481,7 +487,7 @@ values: [{
 					values: [{
 						from: "/Date(1326785200000)/",
 						to: "/Date(1325785200000)/",
-						label: "Development", 
+						label: "Development",
 						customClass: "ganttGreen"
 					}]
 				},{
@@ -490,7 +496,7 @@ values: [{
 					values: [{
 						from: "/Date(1328785200000)/",
 						to: "/Date(1328905200000)/",
-						label: "Showcasing", 
+						label: "Showcasing",
 						customClass: "ganttBlue"
 					}]
 				},{
@@ -499,7 +505,7 @@ values: [{
 					values: [{
 						from: "/Date(1330011200000)/",
 						to: "/Date(1336611200000)/",
-						label: "Training", 
+						label: "Training",
 						customClass: "ganttOrange"
 					}]
 				},{
@@ -508,7 +514,7 @@ values: [{
 					values: [{
 						from: "/Date(1336611200000)/",
 						to: "/Date(1338711200000)/",
-						label: "Deployment", 
+						label: "Deployment",
 						customClass: "ganttOrange"
 					}]
 				},{
@@ -517,7 +523,7 @@ values: [{
 					values: [{
 						from: "/Date(1336611200000)/",
 						to: "/Date(1349711200000)/",
-						label: "Warranty Period", 
+						label: "Warranty Period",
 						customClass: "ganttOrange"
 					}]
 				}],
@@ -547,6 +553,7 @@ values: [{
 			prettyPrint();
 
 		});
+  </script>
 
-    </script>
+    </body>
 </html>
