@@ -46,7 +46,8 @@
             onItemClick: function (data) { return; },
             onAddClick: function (data) { return; },
             onRender: function() { return; },
-            scrollToToday: true
+            scrollToToday: true,
+            shiftOnlyWheelScroll: true
         };
 
         // custom selector `:findday` used to match on specified day in ms.
@@ -1536,6 +1537,11 @@
 
             // Move chart via mousewheel
             wheelScroll: function (element, e) {
+                if (settings.shiftOnlyWheelScroll && !e.shiftKey) {
+                    // shift is not held down: break out
+                    return;
+                }
+                
                 var delta = e.detail ? e.detail * (-50) : e.wheelDelta / 120 * 50;
 
                 core.scrollPanel(element, delta);
