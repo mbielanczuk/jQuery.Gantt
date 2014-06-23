@@ -293,7 +293,7 @@
                     core.scrollPanel(element, 0);
                 // or, scroll the grid to the left most date in the panel
                 } else {
-                    if ((element.hPosition !== 0)) {
+                    if (element.hPosition !== 0) {
                         if (element.scaleOldWidth) {
                             mLeft = ($dataPanel.width() - $rightPanel.width());
                             hPos = mLeft * element.hPosition / element.scaleOldWidth;
@@ -306,10 +306,8 @@
                             $dataPanel.css({ "margin-left": element.hPosition + "px" });
                             element.scrollNavigation.panelMargin = element.hPosition;
                         }
-                        core.repositionLabel(element);
-                    } else {
-                        core.repositionLabel(element);
                     }
+                    core.repositionLabel(element);
                 }
 
                 $dataPanel.css({ height: $leftPanel.height() });
@@ -329,7 +327,7 @@
                 $.each(element.data, function (i, entry) {
                     if (i >= element.pageNum * settings.itemsPerPage && i < (element.pageNum * settings.itemsPerPage + settings.itemsPerPage)) {
                         entries.push('<div class="row name row' + i + (entry.desc ? '' : ' fn-wide') + '" id="rowheader' + i + '" offset="' + i % settings.itemsPerPage * tools.getCellSize() + '">');
-                        entries.push('<span class="fn-label' + (entry.cssClass ? ' ' + entry.cssClass : '') + '">' + entry.name + '</span>');
+                        entries.push('<span class="fn-label' + (entry.cssClass ? ' ' + entry.cssClass : '') + '">' + (entry.name || '') + '</span>');
                         entries.push('</div>');
 
                         if (entry.desc) {
@@ -770,7 +768,7 @@
                                     }))
                                 .append($('<div class="page-number"/>')
                                         .append($('<span/>')
-                                            .html(element.pageNum + 1 + ' of ' + element.pageCount)))
+                                            .html(element.pageNum + 1 + ' / ' + element.pageCount)))
                                 .append($('<button type="button" class="nav-link nav-page-next"/>')
                                     .html('&gt;')
                                     .click(function () {
@@ -1168,20 +1166,18 @@
                 var $dataPanel = $rightPanel.find(".dataPanel");
                 var rightPanelWidth = $rightPanel.width();
                 var dataPanelWidth = $dataPanel.width();
-
+                var shift = function () {
+                  core.repositionLabel(element);
+                };
                 switch (val) {
                     case "begin":
-                        $dataPanel.animate({
-                            "margin-left": "0px"
-                        }, "fast", function () { core.repositionLabel(element); });
+                        $dataPanel.animate({ "margin-left": "0px" }, "fast", shift);
                         element.scrollNavigation.panelMargin = 0;
                         break;
                     case "end":
                         var mLeft = dataPanelWidth - rightPanelWidth;
                         element.scrollNavigation.panelMargin = mLeft * -1;
-                        $dataPanel.animate({
-                            "margin-left": "-" + mLeft + "px"
-                        }, "fast", function () { core.repositionLabel(element); });
+                        $dataPanel.animate({ "margin-left": "-" + mLeft + "px" }, "fast", shift);
                         break;
                     case "now":
                         if (!element.scrollNavigation.canScroll || !$dataPanel.find(".today").length) {
@@ -1196,9 +1192,7 @@
                         } else if (val < max_left) {
                             val = max_left;
                         }
-                        $dataPanel.animate({
-                            "margin-left": val + "px"
-                        }, "fast", core.repositionLabel(element));
+                        $dataPanel.animate({ "margin-left": val + "px" }, "fast", shift);
                         element.scrollNavigation.panelMargin = val;
                         break;
                     default:
@@ -1206,13 +1200,12 @@
                         var cur_marg = $dataPanel.css("margin-left").replace("px", "");
                         var val = parseInt(cur_marg, 10) + val;
                         if (val <= 0 && val >= max_left) {
-                            $dataPanel.animate({
-                                "margin-left": val + "px"
-                            }, "fast", core.repositionLabel(element));
+                            $dataPanel.animate({ "margin-left": val + "px" }, "fast", shift);
                         }
                         element.scrollNavigation.panelMargin = val;
                         break;
                 }
+                core.synchronizeScroller(element);
             },
 
             // Navigate to a specific page
@@ -1428,11 +1421,8 @@
                     $(element).append(element.loader);
                     setTimeout(fn, 500);
 
-                } else {
-                    if (element.loader) {
-                        element.loader.remove();
-                    }
-                    element.loader = null;
+                } else if (element.loader) {
+                  element.loader.detach();
                 }
             }
         };
