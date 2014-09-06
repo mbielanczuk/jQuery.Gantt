@@ -537,6 +537,9 @@ values: [{
 					if (window.console && typeof console.log === "function") {
 						console.log("chart rendered");
 					}
+				},
+				onDataLoadFailed: function(data) {
+					alert("Data failed to load!")
 				}
 			});
 

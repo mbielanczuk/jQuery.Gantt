@@ -46,7 +46,7 @@
     float: left;
     height: 24px;
     line-height: 24px;
-    margin-left: -24px;
+    /*margin-left: -24px;*/
 }
 
 .fn-gantt .leftPanel .fn-label {
@@ -258,7 +258,6 @@
 .fn-gantt .bottom {
     clear: both;
     background-color: #f6f6f6;
-    width: 100%;
 }
 .fn-gantt .navigate {
     border-top: 1px solid #DDD;
