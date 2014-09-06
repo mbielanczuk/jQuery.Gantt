@@ -133,13 +133,10 @@
         // `getWeekOfYear` returns the week number for the year
         Date.prototype.getWeekOfYear = function () {
             var ys = new Date(this.getFullYear(), 0, 1);
-            var sd = new Date(this.getFullYear(), this.getMonth(), this.getDate());
-            if (ys.getDay() > 3) {
-                ys = new Date(sd.getFullYear(), 0, (7 - ys.getDay()));
-            }
-            var daysCount = sd.getDayOfYear() - ys.getDayOfYear();
-            return Math.ceil(daysCount / 7);
-
+            var sd = new Date(this.getTime());
+            // Find Thursday of this week starting on Monday
+            sd.setDate(sd.getDate() + 4 - (sd.getDay() || 7));
+            return Math.floor(Math.round((sd - ys) / 86400000) / 7) + 1;
         };
 
         // `getDaysInMonth` returns the number of days in a month
