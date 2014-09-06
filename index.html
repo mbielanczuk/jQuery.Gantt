@@ -1,36 +1,44 @@
-﻿<!doctype html>
-<html lang="en-au">
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <title>jQuery.Gantt</title>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" >
-        <link rel="stylesheet" href="css/style.css" />
-        <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" />
-        <link rel="stylesheet" href="http://taitems.github.com/UX-Lab/core/css/prettify.css" />
-		<style type="text/css">
-			body {
-				font-family: Helvetica, Arial, sans-serif;
-				font-size: 13px;
-				padding: 0 0 50px 0;
-			}
-			.contain {
-				width: 800px;
-				margin: 0 auto;
-			}
-			h1 {
-				margin: 40px 0 20px 0;
-			}
-			h2 {
-				font-size: 1.5em;
-				padding-bottom: 3px;
-				border-bottom: 1px solid #DDD;
-				margin-top: 50px;
-				margin-bottom: 25px;
-			}
-			table th:first-child {
-				width: 150px;
-			}
-		</style>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1">
+	<link href="css/style.css" type="text/css" rel="stylesheet">
+	<link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link href="http://taitems.github.com/UX-Lab/core/css/prettify.css" rel="stylesheet" type="text/css">
+	<style type="text/css">
+		body {
+			font-family: Helvetica, Arial, sans-serif;
+			font-size: 13px;
+			padding: 0 0 50px 0;
+		}
+		.contain {
+			width: 800px;
+			margin: 0 auto;
+		}
+		h1 {
+			margin: 40px 0 20px 0;
+		}
+		h2 {
+			font-size: 1.5em;
+			padding-bottom: 3px;
+			border-bottom: 1px solid #DDD;
+			margin-top: 50px;
+			margin-bottom: 25px;
+		}
+		table th:first-child {
+			width: 150px;
+		}
+		/* Bootstrap 3.x re-reset */
+		.fn-gantt *,
+		.fn-gantt *:after,
+		.fn-gantt *:before {
+			-webkit-box-sizing: content-box;
+			-moz-box-sizing: content-box;
+			box-sizing: content-box;
+		}
+	</style>
     </head>
     <body>
 
@@ -52,12 +60,15 @@
 				<li>
 					<strong><a href="mailto:leo.pfeifenberger@googlemail.com" target="_blank">Leo Pfeifenberger</a></strong> made <em>major</em> performance updates as well as adding requested features such as click events, state persisting via cookies and scrollToToday on load functionality.
 				</li>
+				<li>
+					<strong><a href="mailto:grzegorz.russek@gmail.com" target="_blank">Grzegorz Russek</a></strong> helped fix the White Whale of a bug that prevented the hour view rendering correctly. Nice one.
+				</li>
 			</ul>
 
 	    	<h2>
 	    		Example
 	    	</h2>
-				
+
 			<div class="gantt"></div>
 
 
@@ -105,7 +116,7 @@ $(".selector").gantt({
 							<code>source</code>
 						</td>
 						<td>
-							null
+							[]
 						</td>
 						<td>
 							Array, String (url)
@@ -201,7 +212,7 @@ $(".selector").gantt({
 					</tr>
 					<tr>
 						<td>
-						    <code>onItemClick: </code>
+						    <code>onItemClick</code>
                             </td>
 						<td>
 							<code>function (data) { return; }</code></td>
@@ -424,14 +435,11 @@ values: [{
 
 		</div>
 
-    </body>
-	<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
-	<script src="js/jquery.fn.gantt.js"></script>
-	<script src="http://twitter.github.com/bootstrap/assets/js/bootstrap-tooltip.js"></script>
-	<script src="http://twitter.github.com/bootstrap/assets/js/bootstrap-popover.js"></script>
+	<script src="js/jquery.min.js"></script>
+	<script src="js/jquery.fn.gantt.min2.js"></script>
+	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 	<script src="http://taitems.github.com/UX-Lab/core/js/prettify.js"></script>
-    <script>
-
+	<script>
 		$(function() {
 
 			"use strict";
@@ -444,7 +452,7 @@ values: [{
 						id: "t01",
 						from: "/Date(1320192000000)/",
 						to: "/Date(1322401600000)/",
-						label: "Requirement Gathering", 
+						label: "Requirement Gathering",
 						customClass: "ganttRed"
 					}]
 				},{
@@ -454,9 +462,8 @@ values: [{
 						id: "t02",
 						from: "/Date(1322611200000)/",
 						to: "/Date(1323302400000)/",
-						label: "Scoping", 
-						customClass: "ganttRed",
-						dep: "t01"
+						label: "Scoping",
+						customClass: "ganttRed"
 					}]
 				},{
 					name: "Sprint 1",
@@ -464,7 +471,7 @@ values: [{
 					values: [{
 						from: "/Date(1323802400000)/",
 						to: "/Date(1325685200000)/",
-						label: "Development", 
+						label: "Development",
 						customClass: "ganttGreen"
 					}]
 				},{
@@ -473,7 +480,7 @@ values: [{
 					values: [{
 						from: "/Date(1325685200000)/",
 						to: "/Date(1325695200000)/",
-						label: "Showcasing", 
+						label: "Showcasing",
 						customClass: "ganttBlue"
 					}]
 				},{
@@ -482,7 +489,7 @@ values: [{
 					values: [{
 						from: "/Date(1326785200000)/",
 						to: "/Date(1325785200000)/",
-						label: "Development", 
+						label: "Development",
 						customClass: "ganttGreen"
 					}]
 				},{
@@ -491,7 +498,7 @@ values: [{
 					values: [{
 						from: "/Date(1328785200000)/",
 						to: "/Date(1328905200000)/",
-						label: "Showcasing", 
+						label: "Showcasing",
 						customClass: "ganttBlue"
 					}]
 				},{
@@ -500,7 +507,7 @@ values: [{
 					values: [{
 						from: "/Date(1330011200000)/",
 						to: "/Date(1336611200000)/",
-						label: "Training", 
+						label: "Training",
 						customClass: "ganttOrange"
 					}]
 				},{
@@ -509,7 +516,7 @@ values: [{
 					values: [{
 						from: "/Date(1336611200000)/",
 						to: "/Date(1338711200000)/",
-						label: "Deployment", 
+						label: "Deployment",
 						customClass: "ganttOrange"
 					}]
 				},{
@@ -518,14 +525,12 @@ values: [{
 					values: [{
 						from: "/Date(1336611200000)/",
 						to: "/Date(1349711200000)/",
-						label: "Warranty Period", 
+						label: "Warranty Period",
 						customClass: "ganttOrange"
 					}]
 				}],
 				navigate: "scroll",
-				scale: "weeks",
-				maxScale: "months",
-				minScale: "days",
+				maxScale: "hours",
 				itemsPerPage: 10,
 				onItemClick: function(data) {
 					alert("Item clicked - show some details");
@@ -553,6 +558,6 @@ values: [{
 			prettyPrint();
 
 		});
-
-    </script>
+  </script>
+    </body>
 </html>
