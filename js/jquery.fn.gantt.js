@@ -1635,6 +1635,22 @@
                 if (typeof date === "string") {
                     date = date.replace(/\/Date\((.*)\)\//, "$1");
                     date = $.isNumeric(date) ? parseInt(date, 10) : $.trim(date);
+
+                    date = date.toString()
+                    var splited = date.split(',').map(Number);
+                    if (splited.length == 7) {
+                        var year = splited[0];
+                        var month = splited[1];
+                        var day = splited[2];
+                        var hour = splited[3];
+                        var minute = splited[4];
+                        var second = splited[5];
+                        var millisecond = splited[6];
+                        date = new Date( year, month, day, hour, minute, second, millisecond );
+                        return date
+                    } else {
+                        date = parseInt(date)
+                    }
                 }
                 return new Date( date );
             },
