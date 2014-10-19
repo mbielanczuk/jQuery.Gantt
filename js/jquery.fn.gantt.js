@@ -968,18 +968,15 @@
             // Remove the `wd` (weekday) class and add `today` class to the
             // current day/week/month (depending on the current scale)
             markNow: function (element) {
+                var cd = new Date().setHours(0, 0, 0, 0);
                 switch (settings.scale) {
                     case "weeks":
-                        var cd = Date.parse(new Date());
-                        cd = (Math.floor(cd / 36400000) * 36400000);
                         $(element).find(':findweek("' + cd + '")').removeClass('wd').addClass('today');
                         break;
                     case "months":
                         $(element).find(':findmonth("' + new Date().getTime() + '")').removeClass('wd').addClass('today');
                         break;
                     default:
-                        var cd = Date.parse(new Date());
-                        cd = (Math.floor(cd / 36400000) * 36400000);
                         $(element).find(':findday("' + cd + '")').removeClass('wd').addClass('today');
                         break;
                 }
