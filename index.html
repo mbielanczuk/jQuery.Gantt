@@ -3,10 +3,11 @@
     <head>
         <title>jQuery.Gantt</title>
 		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1">
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=IE8">
+        <base target="_blank">
         <link href="css/style.css" type="text/css" rel="stylesheet">
-        <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-        <link href="http://taitems.github.com/UX-Lab/core/css/prettify.css" rel="stylesheet" type="text/css">
+        <link href="http://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+        <link href="http://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css" rel="stylesheet" type="text/css">
 		<style type="text/css">
 			body {
 				font-family: Helvetica, Arial, sans-serif;
@@ -49,7 +50,7 @@
 				<small>&mdash; Draw Gantt charts with the famous jQuery ease of development</small>
 			</h1>
 
-			<h2>Contributors</h2>
+			<h2 id="contributors">Contributors</h2>
 			<ul>
 				<li>
 					<strong><a href="http://mbielanczuk.com/" target="_blank">Marek Bielańczuk</a></strong> wrote the original jQuery.Gantt plugin that this version is based off of.
@@ -65,7 +66,7 @@
 				</li>
 			</ul>
 
-	    	<h2>
+	    	<h2 id="example">
 	    		Example
 	    	</h2>
 
@@ -73,12 +74,12 @@
 
 
 
-			<h2>
+			<h2 id="config">
 				Gantt Configuration
 			</h2>
 
 
-<pre class="prettyprint">
+<pre class="prettyprint lang-js">
 $(".selector").gantt({
 	source: "ajax/data.json",
 	scale: "weeks",
@@ -116,10 +117,10 @@ $(".selector").gantt({
 							<code>source</code>
 						</td>
 						<td>
-							[]
+                            <code>[]</code>
 						</td>
 						<td>
-							Array, String (url)
+							Array, string (url)
 						</td>
 					</tr>
 					<tr>
@@ -127,10 +128,10 @@ $(".selector").gantt({
 							<code>itemsPerPage</code>
 						</td>
 						<td>
-							7
+                            <code>7</code>
 						</td>
 						<td>
-							Number
+							number
 						</td>
 					</tr>
 					<tr>
@@ -138,7 +139,7 @@ $(".selector").gantt({
 							<code>months</code>
 						</td>
 						<td>
-							["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+                            <code>["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]</code>
 						</td>
 						<td>
 							Array
@@ -149,7 +150,7 @@ $(".selector").gantt({
 							<code>dow</code>
 						</td>
 						<td>
-							["S", "M", "T", "W", "T", "F", "S"]
+                            <code>["S", "M", "T", "W", "T", "F", "S"]</code>
 						</td>
 						<td>
 							Array
@@ -157,13 +158,24 @@ $(".selector").gantt({
 					</tr>
 					<tr>
 						<td>
+							<code>holidays</code>
+						</td>
+						<td>
+                            <code>undefined</code>
+						</td>
+						<td>
+                            Array of numbers (ms), date strings (see&nbsp;<a href="http://dygraphs.com/date-formats.html">formats</a>), or Date objects
+						</td>
+					</tr>
+					<tr>
+						<td>
 							<code>navigate</code>
 						</td>
 						<td>
-							"buttons"
+                            <code>"buttons"</code>
 						</td>
 						<td>
-							String ("buttons","scroll")
+							string ("buttons","scroll")
 						</td>
 					</tr>
 					<tr>
@@ -171,10 +183,10 @@ $(".selector").gantt({
 							<code>scale</code>
 						</td>
 						<td>
-							"days"
+                            <code>"days"</code>
 						</td>
 						<td>
-							String
+							string ("months","weeks","days","hours")
 						</td>
 					</tr>
 					<tr>
@@ -182,10 +194,10 @@ $(".selector").gantt({
 							<code>maxScale</code>
 						</td>
 						<td>
-							"months"
+                            <code>"months"</code>
 						</td>
 						<td>
-							String
+							string ("months","weeks","days","hours")
 						</td>
 					</tr>
 					<tr>
@@ -193,10 +205,10 @@ $(".selector").gantt({
 							<code>minScale</code>
 						</td>
 						<td>
-							"hours"
+                            <code>"hours"</code>
 						</td>
 						<td>
-							String
+							string ("months","weeks","days","hours")
 						</td>
 					</tr>
 					<tr>
@@ -204,20 +216,20 @@ $(".selector").gantt({
 							<code>waitText</code>
 						</td>
 						<td>
-							"Please Wait..."
+                            <code>"Please wait..."</code>
 						</td>
 						<td>
-							String
+							string
 						</td>
 					</tr>
 					<tr>
 						<td>
 						    <code>onItemClick</code>
-                            </td>
+                        </td>
 						<td>
 							<code>function (data) { return; }</code></td>
 						<td>
-						    a JS Function that gets called when clicking on a Gantt-Item. <br />The parameter passed to the function is the dataObj of the item</td>
+						    a Function called when clicking on a Gantt item. <br />The parameter passed to the function is the dataObj of the source item, if one was provided.</td>
 					</tr>
 				    <tr>
 				        <td>
@@ -225,7 +237,7 @@ $(".selector").gantt({
 				        <td>
 				            <code>function (dt, rowId) { return; }</code></td>
 				        <td>
-				            a JS Function that gets called when clicking on a Gantt-Item. <br />The parameter passed to the function is the DateTime in ms for the clicked Cell, and the ID if the source object (row)</td>
+				            a Function called when clicking on empty space inside the Gantti data panel. <br />The parameter passed to the function is the date/time in milliseconds for the clicked cell, and the ID of the source object (row), if one was provided.</td>
 				    </tr>
 				    <tr>
 				        <td>
@@ -233,7 +245,7 @@ $(".selector").gantt({
 				        <td>
 				            <code>function () { return; }</code></td>
 				        <td>
-				            a JS Function called whenever the chart is (re)rendered</td>
+				            a Function called whenever the chart is (re)rendered</td>
 				    </tr>
                     <tr>
 						<td>
@@ -241,8 +253,8 @@ $(".selector").gantt({
 						<td>
 							<code>false</code></td>
 						<td>
-						    indicates if cookies should be used to track the chart's state (scale, scrollposition) between postpacks<br />
-						    <code>jquery.cookie.js</code> needs to be referenced for this to work</td>
+						    indicates whether or not cookies should be used to save and restore the chart's view state (scale, scroll position) between postbacks<br />
+                            <code><a href="https://github.com/carhartl/jquery-cookie">jquery.cookie.js</a></code> needs to be referenced for this to work</td>
 					</tr>
 					<tr>
 						<td>
@@ -258,16 +270,21 @@ $(".selector").gantt({
 
 
 
-			<h2>
+			<h2 id="source">
 				Source Configuration
 			</h2>
 
-<pre class="prettyprint">
-source: [{
-	name: "Example",
-	desc: "Lorem ipsum dolor sit amet.",
-	values: [ ... ]
-}]
+<pre class="prettyprint lang-js">
+source: [
+    {
+        name: "Example",
+        desc: "Lorem ipsum dolor sit amet.",
+        values: [ ... ]
+        id: 1,
+        cssClass: "redLabel"
+    },
+    ... // more rows
+]
 </pre>
 
 			<table class="table table-striped">
@@ -275,9 +292,6 @@ source: [{
 					<tr>
 						<th>
 							Parameter
-						</th>
-						<th>
-							Default
 						</th>
 						<th>
 							Accepts Type
@@ -293,13 +307,10 @@ source: [{
 							<code>name</code>
 						</td>
 						<td>
-							null
+							string
 						</td>
 						<td>
-							String
-						</td>
-						<td>
-							Bold value in the left-most column of the gantt row.
+							Optional primary label for this row of values; appears in the leftmost column of the row.
 						</td>
 					</tr>
 					<tr>
@@ -307,13 +318,10 @@ source: [{
 							<code>desc</code>
 						</td>
 						<td>
-							null
+							string
 						</td>
 						<td>
-							String
-						</td>
-						<td>
-							Secondary value in the gantt row.
+							Optional secondary label for this row of the Gantt.
 						</td>
 					</tr>
 					<tr>
@@ -321,32 +329,54 @@ source: [{
 							<code>values</code>
 						</td>
 						<td>
-							null
-						</td>
-						<td>
 							Array
 						</td>
 						<td>
-							Collection of date ranges for gantt items. See next table.
+                            Sequence of date ranges for each row of the Gantt. See <a href="#values" target="_self">next table</a>.
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>id</code>
+						</td>
+						<td>
+							string or number
+						</td>
+						<td>
+                            Optional value to be passed as second parameter to <code>onAddClick()</code> callback when triggered.
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>cssClass</code>
+						</td>
+						<td>
+							string
+						</td>
+						<td>
+							Optional space-separated class names to be applied to this row's labels.
 						</td>
 					</tr>
 				</tbody>
 			</table>
 
 
-			<h2>
+			<h2 id="values">
 				Value Configuration
 			</h2>
 
-<pre class="prettyprint">
-values: [{
-	to: "/Date(1328832000000)/",
-	from: "/Date(1333411200000)/",
-	desc: "Something",
-	label: "Example Value",
-	customClass: "ganttRed",
-	dataObj: foo.bar[i]
-}]
+<pre class="prettyprint lang-js">
+values: [
+    {
+        from: "/Date(1333411200000)/",
+        to: "/Date(1328832000000)/",
+        label: "Example Value",
+        desc: "Something",
+        customClass: "ganttRed",
+        dataObj: foo.bar[i]
+    },
+    ... // more items for the row (though Gantt charts traditionally have only one item per row)
+]
 </pre>
 
 			<table class="table table-striped">
@@ -366,35 +396,24 @@ values: [{
 				<tbody>
 					<tr>
 						<td>
-							<code>to</code>
-						</td>
-						<td>
-							String (Date)
-						</td>
-						<td>
-							-
-						</td>
-					</tr>
-					<tr>
-						<td>
 							<code>from</code>
 						</td>
 						<td>
-							String (Date)
+							number (ms), string (see&nbsp;<a href="http://dygraphs.com/date-formats.html">formats</a>)
 						</td>
 						<td>
-							-
+							Start date/time of the Gantt item.
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<code>desc</code>
+							<code>to</code>
 						</td>
 						<td>
-							String
+							number (ms), string (see&nbsp;<a href="http://dygraphs.com/date-formats.html">formats</a>)
 						</td>
 						<td>
-							Text that appears on hover, I think?
+							End date/time of the Gantt item.
 						</td>
 					</tr>
 					<tr>
@@ -402,10 +421,21 @@ values: [{
 							<code>label</code>
 						</td>
 						<td>
-							String
+							string
 						</td>
 						<td>
-							Appears on the gantt item.
+							Optional label/name of the Gantt item.
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<code>desc</code>
+						</td>
+						<td>
+							string
+						</td>
+						<td>
+							Optional description of the Gantt item, used as HTML content of hover "hint").
 						</td>
 					</tr>
 					<tr>
@@ -413,10 +443,10 @@ values: [{
 							<code>customClass</code>
 						</td>
 						<td>
-							String
+							string
 						</td>
 						<td>
-							Custom class to be applied to the gantt item.
+							Optional space-separated class names to be applied to the Gantt item.
 						</td>
 					</tr>
 					<tr>
@@ -424,10 +454,10 @@ values: [{
 							<code>dataObj</code>
 						</td>
 						<td>
-							All
+							Any
 						</td>
 						<td>
-							A data object that is applied directly to the gantt item.
+							Optional data object that is stored directly on the Gantt item.
 						</td>
 					</tr>
 				</tbody>
@@ -437,8 +467,8 @@ values: [{
 
 	<script src="js/jquery.min.js"></script>
 	<script src="js/jquery.fn.gantt.js"></script>
-	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-	<script src="http://taitems.github.com/UX-Lab/core/js/prettify.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/latest/js/bootstrap.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.js"></script>
   <script>
 		$(function() {
 
@@ -528,7 +558,9 @@ values: [{
 					}]
 				}],
 				navigate: "scroll",
-				maxScale: "hours",
+				scale: "weeks",
+				maxScale: "months",
+				minScale: "hours",
 				itemsPerPage: 10,
 				onItemClick: function(data) {
 					alert("Item clicked - show some details");

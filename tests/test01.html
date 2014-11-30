@@ -1,12 +1,10 @@
-﻿<!doctype html>
-<html lang="en-au">
+﻿<!DOCTYPE html>
+<html lang="en">
     <head>
         <title>jQuery.Gantt - Test Suite 01</title>
 		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" >
-        <link rel="stylesheet" href="../css/style.css" />
-        <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="http://taitems.github.com/UX-Lab/core/css/prettify.css" />
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=IE8" >
+        <link href="../css/style.css" type="text/css" rel="stylesheet">
 		<style type="text/css">
 			body {
 				font-family: Helvetica, Arial, sans-serif;
@@ -51,16 +49,13 @@
 					<li>Passing</li>
 				</ul>
 			</p>
-				
+
 			<div class="gantt"></div>
 
 
-    </body>
 	<script src="../js/jquery.min.js"></script>
 	<script src="../js/jquery.fn.gantt.js"></script>
-	<script src="moment.min.js"></script>
-	<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-	<script src="http://taitems.github.com/UX-Lab/core/js/prettify.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
     <script>
 
 		$(function() {
@@ -68,7 +63,7 @@
 			"use strict";
 
 			var today = moment();
-			var andTwoHours = moment().add("hours",2);
+			var andTwoHours = moment().add(2, "hours");
 
 			var today_friendly = "/Date(" + today.valueOf() + ")/";
 			var next_friendly = "/Date(" + andTwoHours.valueOf() + ")/";
@@ -80,7 +75,7 @@
 					values: [{
 						from: today_friendly,
 						to: next_friendly,
-						label: "Test", 
+						label: "Test",
 						customClass: "ganttRed"
 					}]
 				}],
@@ -89,14 +84,9 @@
 				navigate: "scroll"
 			});
 
-			$(".gantt").popover({
-				selector: ".bar",
-				title: "I'm a popover",
-				content: "And I'm the content of said popover.",
-				trigger: "hover"
-			});
-
 		});
 
     </script>
+
+    </body>
 </html>
