@@ -59,10 +59,13 @@
                     <strong><a href="http://taitbrown.com/" target="_blank">Tait Brown</a></strong> enforced stricter code guidelines by validating the code, updating it to support HTML5 and tweaking the design.
                 </li>
                 <li>
-                    <strong><a href="mailto:leo.pfeifenberger@googlemail.com" target="_blank">Leo Pfeifenberger</a></strong> made <em>major</em> performance updates as well as adding requested features such as click events, state persisting via cookies and scrollToToday on load functionality.
+                    <strong><a href="mailto:leo.pfeifenberger%40googlemail.com">Leo Pfeifenberger</a></strong> made <em>major</em> performance updates as well as adding requested features such as click events, state persisting via cookies and scrollToToday on load functionality.
                 </li>
                 <li>
-                    <strong><a href="mailto:grzegorz.russek@gmail.com" target="_blank">Grzegorz Russek</a></strong> helped fix the White Whale of a bug that prevented the hour view rendering correctly. Nice one.
+                    <strong><a href="mailto:grzegorz.russek%40gmail.com">Grzegorz Russek</a></strong> helped fix the White Whale of a bug that prevented the hour view rendering correctly. Nice one.
+                </li>
+                <li>
+                <strong><a href="https://github.com/taitems/jQuery.Gantt/graphs/contributors" target="_blank">Many more from the GitHub community</a></strong>
                 </li>
             </ul>
 
@@ -142,7 +145,7 @@ $(".selector").gantt({
                             <code>["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]</code>
                         </td>
                         <td>
-                            Array
+                            Array (12 strings representing the months of the year)
                         </td>
                     </tr>
                     <tr>
@@ -153,7 +156,7 @@ $(".selector").gantt({
                             <code>["S", "M", "T", "W", "T", "F", "S"]</code>
                         </td>
                         <td>
-                            Array
+                            Array (7 strings representing the days of the week)
                         </td>
                     </tr>
                     <tr>
@@ -164,7 +167,7 @@ $(".selector").gantt({
                             <code>undefined</code>
                         </td>
                         <td>
-                            Array of numbers (ms), date strings (see&nbsp;<a href="http://dygraphs.com/date-formats.html">formats</a>), or Date objects
+                            Array of numbers (ms), date strings (see&nbsp;<a href="http://dygraphs.com/date-formats.html" target="_blank">formats</a>), or Date objects
                         </td>
                     </tr>
                     <tr>
@@ -229,7 +232,7 @@ $(".selector").gantt({
                         <td>
                             <code>function (data) { return; }</code></td>
                         <td>
-                            a Function called when clicking on a Gantt item. <br />The parameter passed to the function is the dataObj of the source item, if one was provided.</td>
+                            Function called when clicking on a Gantt item. <br />The parameter passed to the function is the dataObj of the source item, if one was provided.</td>
                     </tr>
                     <tr>
                         <td>
@@ -237,15 +240,15 @@ $(".selector").gantt({
                         <td>
                             <code>function (dt, rowId) { return; }</code></td>
                         <td>
-                            a Function called when clicking on empty space inside the Gantti data panel. <br />The parameter passed to the function is the date/time in milliseconds for the clicked cell, and the ID of the source object (row), if one was provided.</td>
+                            Function called when clicking on empty space inside the Gantti data panel. <br />The parameter passed to the function is the date/time in milliseconds for the clicked cell, and the ID of the source object (row), if one was provided.</td>
                     </tr>
                     <tr>
                         <td>
                             <code>onRender</code></td>
                         <td>
-                            <code>function () { return; }</code></td>
+                            <code><a href="http://api.jquery.com/jquery.noop/" target="_blank">$.noop</a></code></td>
                         <td>
-                            a Function called whenever the chart is (re)rendered</td>
+                            Function called whenever the chart is (re)rendered</td>
                     </tr>
                     <tr>
                         <td>
@@ -253,8 +256,16 @@ $(".selector").gantt({
                         <td>
                             <code>false</code></td>
                         <td>
-                            indicates whether or not cookies should be used to save and restore the chart's view state (scale, scroll position) between postbacks<br />
-                            <code><a href="https://github.com/carhartl/jquery-cookie">jquery.cookie.js</a></code> needs to be referenced for this to work</td>
+                            indicates whether or not cookies should be used to save and restore the chart's view state (scale, scroll position) between page loads;
+                            <code><a href="https://github.com/carhartl/jquery-cookie" target="_blank">jquery.cookie.js</a></code> needs to be referenced for this to work</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <code>cookieKey</code></td>
+                        <td>
+                            <code>"jquery.fn.gantt"</code></td>
+                        <td>
+                            The prefix used when storing cookies (depends on useCookie being set to <code>true</code>)</td>
                     </tr>
                     <tr>
                         <td>
@@ -332,7 +343,7 @@ source: [
                             Array
                         </td>
                         <td>
-                            Sequence of date ranges for each row of the Gantt. See <a href="#values" target="_self">next table</a>.
+                            Sequence of date ranges for each row of the Gantt. See <a href="#values">next table</a>.
                         </td>
                     </tr>
                     <tr>
@@ -399,7 +410,7 @@ values: [
                             <code>from</code>
                         </td>
                         <td>
-                            number (ms), string (see&nbsp;<a href="http://dygraphs.com/date-formats.html">formats</a>)
+                            number (ms), string (see&nbsp;<a href="http://dygraphs.com/date-formats.html" target="_blank">formats</a>)
                         </td>
                         <td>
                             Start date/time of the Gantt item.
@@ -410,7 +421,7 @@ values: [
                             <code>to</code>
                         </td>
                         <td>
-                            number (ms), string (see&nbsp;<a href="http://dygraphs.com/date-formats.html">formats</a>)
+                            number (ms), string (see&nbsp;<a href="http://dygraphs.com/date-formats.html" target="_blank">formats</a>)
                         </td>
                         <td>
                             End date/time of the Gantt item.
@@ -466,10 +477,11 @@ values: [
         </div>
 
     <script src="js/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
     <script src="js/jquery.fn.gantt.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/latest/js/bootstrap.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.js"></script>
-  <script>
+    <script>
         $(function() {
 
             "use strict";
@@ -485,7 +497,6 @@ values: [
                         customClass: "ganttRed"
                     }]
                 },{
-                    name: " ",
                     desc: "Scoping",
                     values: [{
                         from: "/Date(1322611200000)/",
@@ -521,7 +532,6 @@ values: [
                         customClass: "ganttGreen"
                     }]
                 },{
-                    name: " ",
                     desc: "Showcasing",
                     values: [{
                         from: "/Date(1328785200000)/",
@@ -539,7 +549,6 @@ values: [
                         customClass: "ganttOrange"
                     }]
                 },{
-                    name: " ",
                     desc: "Deployment",
                     values: [{
                         from: "/Date(1336611200000)/",
@@ -548,7 +557,6 @@ values: [
                         customClass: "ganttOrange"
                     }]
                 },{
-                    name: " ",
                     desc: "Warranty Period",
                     values: [{
                         from: "/Date(1336611200000)/",
@@ -562,6 +570,7 @@ values: [
                 maxScale: "months",
                 minScale: "hours",
                 itemsPerPage: 10,
+                useCookie: true,
                 onItemClick: function(data) {
                     alert("Item clicked - show some details");
                 },
@@ -585,7 +594,7 @@ values: [
             prettyPrint();
 
         });
-  </script>
+    </script>
 
     </body>
 </html>
