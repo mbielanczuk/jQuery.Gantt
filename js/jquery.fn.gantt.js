@@ -940,7 +940,15 @@
             // **Progress Bar**
             // Return an element representing a progress of position within
             // the entire chart
-            createProgressBar: function (days, cls, desc, label, dataObj) {
+            createProgressBar: function (day) {
+
+                var days = ("dl" in day) ? day.dl : "";
+                var id = ("id" in day) ? day.id : "";
+                var cls = ("customClass" in day) ? day.customClass : "";
+                var desc = ("desc" in day) ? day.desc : "";
+                var label = ("label" in day) ? day.label : "";
+                var dataObj = ("dataObj" in day) ? day.dataObj : null;
+
                 var cellWidth = tools.getCellSize();
                 var barMarg = tools.getProgressBarMargin() || 0;
                 var bar = $('<div class="bar"><div class="fn-label">' + label + '</div></div>')
@@ -948,7 +956,7 @@
                         .css({
                             width: ((cellWidth * days) - barMarg) + 2
                         })
-                        .data("dataObj", dataObj);
+                        .data(dataObj);
 
                 if (desc) {
                     bar
@@ -1010,21 +1018,21 @@
                         return "";
                     }
                 };
-				var darkerColor = function(colStr) {
-					try {
-						colStr = colStr.replace('rgb(','').replace(')','');
-						var rgbArr = colStr.split(',');
-						var R = parseInt(rgbArr[0]);
-						var G = parseInt(rgbArr[1]);
-						var B = parseInt(rgbArr[2]);
-						R = R-Math.round(parseInt(R)/7);
-						G = G-Math.round(parseInt(G)/7);
-						B = B-Math.round(parseInt(B)/7);
-						return 'rgb('+R+', '+G+', '+B+')';
-					} catch (err) {
-						return '';
-					}
-				};
+                var darkerColor = function(colStr) {
+                    try {
+                        colStr = colStr.replace('rgb(','').replace(')','');
+                        var rgbArr = colStr.split(',');
+                        var R = parseInt(rgbArr[0]);
+                        var G = parseInt(rgbArr[1]);
+                        var B = parseInt(rgbArr[2]);
+                        R = R-Math.round(parseInt(R)/7);
+                        G = G-Math.round(parseInt(G)/7);
+                        B = B-Math.round(parseInt(B)/7);
+                        return 'rgb('+R+', '+G+', '+B+')';
+                    } catch (err) {
+                        return '';
+                    }
+                };
                 $.each(element.data, function (i, entry) {
                     if (i >= element.pageNum * settings.itemsPerPage && i < (element.pageNum * settings.itemsPerPage + settings.itemsPerPage)) {
 
@@ -1045,15 +1053,9 @@
                                     var cFrom = from.attr("offset");
                                     var cTo = to.attr("offset");
                                     var dl = Math.floor((cTo - cFrom) / tools.getCellSize()) + 1;
+                                    day.dl = dl;
 
-                                    _bar = core.createProgressBar(
-                                                dl,
-                                                day.id ? day.id : "",
-                                                day.customClass ? day.customClass : "",
-                                                day.desc ? day.desc : "",
-                                                day.label ? day.label : "",
-                                                day.dataObj ? day.dataObj : null
-                                            );
+                                    _bar = core.createProgressBar(day);
 
                                     // find row
                                     var topEl = $(element).find("#rowheader" + i);
@@ -1082,22 +1084,13 @@
                                     }
 
                                     var from = $(element).find("#" + dtFrom.getWeekId());
-
                                     var cFrom = from.attr("offset");
-
                                     var to = $(element).find("#" + dtTo.getWeekId());
                                     var cTo = to.attr("offset");
-
                                     var dl = Math.round((cTo - cFrom) / tools.getCellSize()) + 1;
+                                    day.dl = dl;
 
-                                    _bar = core.createProgressBar(
-                                             dl,
-                                             day.id ? day.id : "",
-                                             day.customClass ? day.customClass : "",
-                                             day.desc ? day.desc : "",
-                                             day.label ? day.label : "",
-                                            day.dataObj ? day.dataObj : null
-                                        );
+                                    _bar = core.createProgressBar(day);
 
                                     // find row
                                     var topEl = $(element).find("#rowheader" + i);
@@ -1130,15 +1123,9 @@
                                     var to = $(element).find("#dh-" + tools.genId(dtTo.getTime()));
                                     var cTo = to.attr("offset");
                                     var dl = Math.round((cTo - cFrom) / tools.getCellSize()) + 1;
+                                    day.dl = dl;
 
-                                    _bar = core.createProgressBar(
-                                        dl,
-                                        day.id ? day.id : "",
-                                        day.customClass ? day.customClass : "",
-                                        day.desc ? day.desc : "",
-                                        day.label ? day.label : "",
-                                        day.dataObj ? day.dataObj : null
-                                    );
+                                    _bar = core.createProgressBar(day);
 
                                     // find row
                                     var topEl = $(element).find("#rowheader" + i);
@@ -1156,16 +1143,10 @@
 
                                     var from = $(element).find("#dh-" + dFrom);
                                     var cFrom = from.attr("offset");
-
                                     var dl = Math.floor(((dTo / 1000) - (dFrom / 1000)) / 86400) + 1;
-                                    _bar = core.createProgressBar(
-                                                dl,
-                                                day.id ? day.id : "",
-                                                day.customClass ? day.customClass : "",
-                                                day.desc ? day.desc : "",
-                                                day.label ? day.label : "",
-                                                day.dataObj ? day.dataObj : null
-                                        );
+                                    day.dl = dl;
+
+                                    _bar = core.createProgressBar(day);
 
                                     // find row
                                     var topEl = $(element).find("#rowheader" + i);
@@ -1333,7 +1314,7 @@
 
             // Move chart via mousewheel
             wheelScroll: function (element, e) {
-				e.preventDefault(); // e is a jQuery Event
+                e.preventDefault(); // e is a jQuery Event
                 var delta = e.detail ? e.detail * (-50) : e.wheelDelta / 120 * 50;
 
                 core.scrollPanel(element, delta);
