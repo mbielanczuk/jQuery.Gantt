@@ -122,20 +122,6 @@
     text-align: center;
 }
 
-.fn-gantt .holiday {
-    background-color: #ffd263;
-    height: 23px;
-    margin: 0 0 -1px -1px;
-}
-
-.fn-gantt .today {
-    background-color: #fff8da;
-    height: 23px;
-    margin: 0 0 -1px -1px;
-    font-weight: bold;
-    text-align: center;
-}
-
 .fn-gantt .sa, .fn-gantt .sn, .fn-gantt .wd {
     height: 23px;
     margin: 0 0 0 -1px;
@@ -150,6 +136,20 @@
 
 .fn-gantt .wd {
     background-color: #f6f6f6;
+    text-align: center;
+}
+
+.fn-gantt .holiday {
+    background-color: #ffd263;
+    height: 23px;
+    margin: 0 0 -1px -1px;
+}
+
+.fn-gantt .today {
+    background-color: #999894;
+    color: white;
+    height: 23px;
+    margin: 0 0 -1px -1px;
     text-align: center;
 }
 
