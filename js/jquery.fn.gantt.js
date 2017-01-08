@@ -24,7 +24,7 @@
         ed.setHours(0, 0, 0, 0);
         return cd.getTime() === ed.getTime();
     }
-    $.expr[':'].findday = $.expr.createPseudo ?
+    $.expr.pseudos.findday = $.expr.createPseudo ?
         $.expr.createPseudo(function(text) {
             return function(elt) {
                 return findDay(elt, text);
@@ -51,7 +51,7 @@
         var ed = id.substring(si, id.length);
         return cd === ed;
     }
-    $.expr[':'].findweek = $.expr.createPseudo ?
+    $.expr.pseudos.findweek = $.expr.createPseudo ?
         $.expr.createPseudo(function(text) {
             return function(elt) {
                 return findWeek(elt, text);
@@ -265,7 +265,7 @@
                 var $leftPanel = core.leftPanel(element);
                 content.append($leftPanel);
                 var $rightPanel = core.rightPanel(element, $leftPanel);
-                var mLeft, hPos;
+                var pLeft, hPos;
 
                 content.append($rightPanel);
                 content.append(core.navigation(element));
@@ -276,7 +276,7 @@
 
                 $(element).empty().append(element.gantt);
 
-                element.scrollNavigation.panelMargin = parseInt($dataPanel.css("margin-left").replace("px", ""), 10);
+                element.scrollNavigation.panelMargin = parseInt($dataPanel.css("left").replace("px", ""), 10);
                 element.scrollNavigation.panelMaxPos = ($dataPanel.width() - $rightPanel.width());
 
                 element.scrollNavigation.canScroll = ($dataPanel.width() > $rightPanel.width());
@@ -300,12 +300,12 @@
                 } else {
                     if (element.hPosition !== 0) {
                         if (element.scaleOldWidth) {
-                            mLeft = ($dataPanel.width() - $rightPanel.width());
-                            hPos = mLeft * element.hPosition / element.scaleOldWidth;
+                            pLeft = ($dataPanel.width() - $rightPanel.width());
+                            hPos = pLeft * element.hPosition / element.scaleOldWidth;
                             element.hPosition = hPos > 0 ? 0 : hPos;
                             element.scaleOldWidth = null;
                         }
-                        $dataPanel.css({ "margin-left": element.hPosition });
+                        $dataPanel.css({ "left": element.hPosition });
                         element.scrollNavigation.panelMargin = element.hPosition;
                     }
                     core.repositionLabel(element);
@@ -321,8 +321,7 @@
                 /* Left panel */
                 var ganttLeftPanel = $('<div class="leftPanel"/>')
                     .append($('<div class="row spacer"/>')
-                    .css("height", tools.getCellSize() * element.headerRows)
-                    .css("width", "100%"));
+                    .css("height", tools.getCellSize() * element.headerRows));
 
                 var entries = [];
                 $.each(element.data, function (i, entry) {
@@ -449,13 +448,14 @@
                 var i, len;
                 var year, month, week, day;
                 var rday, dayClass;
-                var dataPanel;
+                var dataPanel, dataPanelWidth;
 
                 // Setup the headings based on the chosen `settings.scale`
                 switch (settings.scale) {
                 // **Hours**
                 case "hours":
                     range = tools.parseTimeRange(element.dateStart, element.dateEnd, element.scaleStep);
+                    dataPanelWidth = range.length * tools.getCellSize();
 
                     year = range[0].getFullYear();
                     month = range[0].getMonth();
@@ -468,7 +468,7 @@
                         var rfy = rday.getFullYear();
                         if (rfy !== year) {
                             yearArr.push(
-                                '<div class="row header year" style="width: ' +
+                                '<div class="row year" style="width: ' +
                                 tools.getCellSize() * scaleUnitsThisYear +
                                 'px;"><div class="fn-label">' +
                                 year +
@@ -484,7 +484,7 @@
                         var rm = rday.getMonth();
                         if (rm !== month) {
                             monthArr.push(
-                                '<div class="row header month" style="width: ' +
+                                '<div class="row month" style="width: ' +
                                 tools.getCellSize() * scaleUnitsThisMonth + 'px"><div class="fn-label">' +
                                 settings.months[month] +
                                 '</div></div>');
@@ -534,14 +534,14 @@
 
                     // Last year
                     yearArr.push(
-                        '<div class="row header year" style="width: ' +
+                        '<div class="row year" style="width: ' +
                         tools.getCellSize() * scaleUnitsThisYear + 'px;"><div class="fn-label">' +
                         year +
                         '</div></div>');
 
                     // Last month
                     monthArr.push(
-                        '<div class="row header month" style="width: ' +
+                        '<div class="row month" style="width: ' +
                         tools.getCellSize() * scaleUnitsThisMonth + 'px"><div class="fn-label">' +
                         settings.months[month] +
                         '</div></div>');
@@ -562,7 +562,7 @@
                         'style="width: ' + tools.getCellSize() * hoursInDay + 'px;">' +
                         '<div class="fn-label">' + settings.dow[day.getDay()] + '</div></div>');
 
-                    dataPanel = core.dataPanel(element, range.length * tools.getCellSize());
+                    dataPanel = core.dataPanel(element, dataPanelWidth);
 
                     // Append panel elements
                     dataPanel.append(
@@ -577,6 +577,8 @@
                 // **Weeks**
                 case "weeks":
                     range = tools.parseWeeksRange(element.dateStart, element.dateEnd);
+                    dataPanelWidth = range.length * tools.getCellSize();
+
                     year = range[0].getFullYear();
                     month = range[0].getMonth();
                     week = range[0].getWeekOfYear();
@@ -593,7 +595,7 @@
                             diff -= !rday.getMonth() ? 0 : 31;
                             diff /= 7;
                             yearArr.push(
-                                '<div class="row header year" style="width: ' +
+                                '<div class="row year" style="width: ' +
                                 tools.getCellSize() * (scaleUnitsThisYear - diff) +
                                 'px;"><div class="fn-label">' +
                                 year +
@@ -611,7 +613,7 @@
                             //diff -= (diff <= 6) ? 0 : 7;
                             diff /= 7;
                             monthArr.push(
-                                '<div class="row header month" style="width:' +
+                                '<div class="row month" style="width:' +
                                 tools.getCellSize() * (scaleUnitsThisMonth - diff) +
                                 'px;"><div class="fn-label">' +
                                 settings.months[month] +
@@ -632,19 +634,19 @@
 
                     // Last year
                     yearArr.push(
-                        '<div class="row header year" style="width: ' +
+                        '<div class="row year" style="width: ' +
                         tools.getCellSize() * scaleUnitsThisYear + 'px;"><div class="fn-label">' +
                         year +
                         '</div></div>');
 
                     // Last month
                     monthArr.push(
-                        '<div class="row header month" style="width: ' +
+                        '<div class="row month" style="width: ' +
                         tools.getCellSize() * scaleUnitsThisMonth + 'px"><div class="fn-label">' +
                         settings.months[month] +
                         '</div></div>');
 
-                    dataPanel = core.dataPanel(element, range.length * tools.getCellSize());
+                    dataPanel = core.dataPanel(element, dataPanelWidth);
 
                     // Append panel elements
                     dataPanel.append(
@@ -657,6 +659,7 @@
                 // **Months**
                 case 'months':
                     range = tools.parseMonthsRange(element.dateStart, element.dateEnd);
+                    dataPanelWidth = range.length * tools.getCellSize();
 
                     year = range[0].getFullYear();
                     month = range[0].getMonth();
@@ -667,7 +670,7 @@
                         // Fill years
                         if (rday.getFullYear() !== year) {
                             yearArr.push(
-                                '<div class="row header year" style="width: ' +
+                                '<div class="row year" style="width: ' +
                                 tools.getCellSize() * scaleUnitsThisYear +
                                 'px;"><div class="fn-label">' +
                                 year +
@@ -685,32 +688,24 @@
 
                     // Last year
                     yearArr.push(
-                        '<div class="row header year" style="width: ' +
+                        '<div class="row year" style="width: ' +
                         tools.getCellSize() * scaleUnitsThisYear + 'px;"><div class="fn-label">' +
                         year +
                         '</div></div>');
 
-                    // Last month
-                    monthArr.push(
-                        '<div class="row header month" style="width: ' +
-                        tools.getCellSize() * scaleUnitsThisMonth + 'px"><div class="fn-label">' +
-                        settings.months[month] +
-                        '</div></div>');
-
-                    dataPanel = core.dataPanel(element, range.length * tools.getCellSize());
+                    dataPanel = core.dataPanel(element, dataPanelWidth);
 
                     // Append panel elements
                     dataPanel.append(
                         $row.clone().html(yearArr.join("")),
-                        $row.clone().html(monthArr.join("")),
-                        $row.clone().html(dayArr.join("")),
-                        $row.clone().html(dowArr.join(""))
+                        $row.clone().html(monthArr.join(""))
                     );
                     break;
 
                 // **Days (default)**
                 default:
                     range = tools.parseDateRange(element.dateStart, element.dateEnd);
+                    dataPanelWidth = range.length * tools.getCellSize();
 
                     var dateBefore = ktkGetNextDate(range[0], -1);
                     year = dateBefore.getFullYear();
@@ -723,7 +718,7 @@
                         // Fill years
                         if (rday.getFullYear() !== year) {
                             yearArr.push(
-                                '<div class="row header year" style="width:' +
+                                '<div class="row year" style="width:' +
                                 tools.getCellSize() * scaleUnitsThisYear +
                                 'px;"><div class="fn-label">' +
                                 year +
@@ -736,7 +731,7 @@
                         // Fill months
                         if (rday.getMonth() !== month) {
                             monthArr.push(
-                                '<div class="row header month" style="width:' +
+                                '<div class="row month" style="width:' +
                                 tools.getCellSize() * scaleUnitsThisMonth +
                                 'px;"><div class="fn-label">' +
                                 settings.months[month] +
@@ -767,19 +762,19 @@
 
                     // Last year
                     yearArr.push(
-                        '<div class="row header year" style="width: ' +
+                        '<div class="row year" style="width: ' +
                         tools.getCellSize() * scaleUnitsThisYear + 'px;"><div class="fn-label">' +
                         year +
                         '</div></div>');
 
                     // Last month
                     monthArr.push(
-                        '<div class="row header month" style="width: ' +
+                        '<div class="row month" style="width: ' +
                         tools.getCellSize() * scaleUnitsThisMonth + 'px"><div class="fn-label">' +
                         settings.months[month] +
                         '</div></div>');
 
-                    dataPanel = core.dataPanel(element, range.length * tools.getCellSize());
+                    dataPanel = core.dataPanel(element, dataPanelWidth);
 
                     // Append panel elements
                     dataPanel.append(
@@ -803,7 +798,7 @@
                         .append($('<div class="nav-slider" />')
                             .append($('<div class="nav-slider-left" />')
                                 .append($('<button type="button" class="nav-link nav-page-back"/>')
-                                    .html('&lt;')
+                                    .html('&uarr;')
                                     .click(function () {
                                         core.navigatePage(element, -1);
                                     }))
@@ -811,7 +806,7 @@
                                         .append($('<span/>')
                                             .html(element.pageNum + 1 + ' / ' + element.pageCount)))
                                 .append($('<button type="button" class="nav-link nav-page-next"/>')
-                                    .html('&gt;')
+                                    .html('&darr;')
                                     .click(function () {
                                         core.navigatePage(element, 1);
                                     }))
@@ -908,7 +903,7 @@
                 } else {
                     ganttNavigate = $('<div class="navigate" />')
                         .append($('<button type="button" class="nav-link nav-page-back"/>')
-                            .html('&lt;')
+                            .html('&uarr;')
                             .click(function () {
                                 core.navigatePage(element, -1);
                             }))
@@ -916,7 +911,7 @@
                                 .append($('<span/>')
                                     .html(element.pageNum + 1 + ' / ' + element.pageCount)))
                         .append($('<button type="button" class="nav-link nav-page-next"/>')
-                            .html('&gt;')
+                            .html('&darr;')
                             .click(function () {
                                 core.navigatePage(element, 1);
                             }))
@@ -971,14 +966,9 @@
 
             // **Progress Bar**
             // Return an element representing a progress of position within the entire chart
-            createProgressBar: function (days, label, desc, classNames, dataObj) {
+            createProgressBar: function (label, desc, classNames, dataObj) {
                 label = label || "";
-                var cellWidth = tools.getCellSize();
-                var barMarg = tools.getProgressBarMargin() || 0;
                 var bar = $('<div class="bar"><div class="fn-label">' + label + '</div></div>')
-                        .css({
-                            width: ((cellWidth * days) - barMarg) + 2
-                        })
                         .data("dataObj", dataObj);
                 if (desc) {
                     bar
@@ -1030,6 +1020,9 @@
             // **Fill the Chart**
             // Parse the data and fill the data panel
             fillData: function (element, datapanel, leftpanel /* <- never used? */) {
+                var cellWidth = tools.getCellSize();
+                var barOffset = (cellWidth - 18) / 2;
+                var dataPanelWidth = datapanel.width();
                 var invertColor = function (colStr) {
                     try {
                         colStr = colStr.replace("rgb(", "").replace(")", "");
@@ -1050,7 +1043,7 @@
 
                         $.each(entry.values, function (j, day) {
                             var _bar;
-                            var from, to, cFrom, cTo, dFrom, dTo, dl;
+                            var from, to, cFrom, cTo, dFrom, dTo, dl, dp;
                             var topEl, top;
                             switch (settings.scale) {
                             // **Hourly data**
@@ -1061,14 +1054,19 @@
                                 to = $(element).find('#dh-' + dTo);
                                 cFrom = from.data("offset");
                                 cTo = to.data("offset");
-                                dl = Math.floor((cTo - cFrom) / tools.getCellSize()) + 1;
-
-                                _bar = core.createProgressBar(dl, day.label, day.desc, day.customClass, day.dataObj);
+                                dl = Math.floor((cTo - cFrom) / cellWidth) + 1;
+                                dp = 100 * (cellWidth * dl - 1) / dataPanelWidth;
+                                
+                                _bar = core.createProgressBar(day.label, day.desc, day.customClass, day.dataObj);
 
                                 // find row
                                 topEl = $(element).find("#rowheader" + i);
-                                top = tools.getCellSize() * 5 + 2 + topEl.data("offset");
-                                _bar.css({ 'top': top, 'left': Math.floor(cFrom) });
+                                top = cellWidth * 5 + barOffset + topEl.data("offset");
+                                _bar.css({
+                                  top: top,
+                                  left: Math.floor(cFrom),
+                                  width: dp + '%'
+                                });
 
                                 datapanel.append(_bar);
                                 break;
@@ -1082,14 +1080,19 @@
                                 cFrom = from.data("offset");
                                 to = $(element).find("#" + dTo.getWeekId());
                                 cTo = to.data("offset");
-                                dl = Math.round((cTo - cFrom) / tools.getCellSize()) + 1;
+                                dl = Math.round((cTo - cFrom) / cellWidth) + 1;
+                                dp = 100 * (cellWidth * dl - 1) / dataPanelWidth;
 
-                                _bar = core.createProgressBar(dl, day.label, day.desc, day.customClass, day.dataObj);
+                                _bar = core.createProgressBar(day.label, day.desc, day.customClass, day.dataObj);
 
                                 // find row
                                 topEl = $(element).find("#rowheader" + i);
-                                top = tools.getCellSize() * 3 + 2 + topEl.data("offset");
-                                _bar.css({ 'top': top, 'left': Math.floor(cFrom) });
+                                top = cellWidth * 3 + barOffset + topEl.data("offset");
+                                _bar.css({
+                                  top: top,
+                                  left: Math.floor(cFrom),
+                                  width: dp + '%'
+                                });
 
                                 datapanel.append(_bar);
                                 break;
@@ -1115,14 +1118,19 @@
                                 cFrom = from.data("offset");
                                 to = $(element).find("#dh-" + tools.genId(dTo));
                                 cTo = to.data("offset");
-                                dl = Math.round((cTo - cFrom) / tools.getCellSize()) + 1;
+                                dl = Math.round((cTo - cFrom) / cellWidth) + 1;
+                                dp = 100 * (cellWidth * dl - 1) / dataPanelWidth;
 
-                                _bar = core.createProgressBar(dl, day.label, day.desc, day.customClass, day.dataObj);
+                                _bar = core.createProgressBar(day.label, day.desc, day.customClass, day.dataObj);
 
                                 // find row
                                 topEl = $(element).find("#rowheader" + i);
-                                top = tools.getCellSize() * 2 + 2 + topEl.data("offset");
-                                _bar.css({ 'top': top, 'left': Math.floor(cFrom) });
+                                top = cellWidth * 2 + barOffset + topEl.data("offset");
+                                _bar.css({
+                                  top: top,
+                                  left: Math.floor(cFrom),
+                                  width: dp + '%'
+                                });
 
                                 datapanel.append(_bar);
                                 break;
@@ -1136,22 +1144,26 @@
                                 from = $(element).find("#dh-" + dFrom);
                                 cFrom = from.data("offset");
                                 dl = Math.floor((dTo - dFrom) / UTC_DAY_IN_MS) + 1;
-                                _bar = core.createProgressBar(dl, day.label, day.desc, day.customClass, day.dataObj);
+                                dp = 100 * (cellWidth * dl - 1) / dataPanelWidth;
+
+                                _bar = core.createProgressBar(day.label, day.desc, day.customClass, day.dataObj);
 
                                 // find row
                                 topEl = $(element).find("#rowheader" + i);
-                                top = tools.getCellSize() * 4 + 2 + topEl.data("offset");
-                                _bar.css({ 'top': top, 'left': Math.floor(cFrom) });
+                                top = cellWidth * 4 + barOffset + topEl.data("offset");
+                                _bar.css({
+                                  top: top,
+                                  left: Math.floor(cFrom),
+                                  width: dp + '%'
+                                });
 
                                 datapanel.append(_bar);
                             }
 
                             var $l = _bar.find(".fn-label");
-                            if ($l && _bar.length) {
-                                var gray = invertColor(_bar[0].style.backgroundColor);
+                            if ($l.length) {
+                                var gray = invertColor(_bar.css('backgroundColor'));
                                 $l.css("color", gray);
-                            } else if ($l) {
-                                $l.css("color", "");
                             }
                         });
 
@@ -1167,23 +1179,23 @@
                 var shift = function () {
                   core.repositionLabel(element);
                 };
-                var maxLeft, curMarg;
+                var maxLeft, curLeft;
                 switch (val) {
                 case "begin":
-                    $dataPanel.animate({ "margin-left": "0px" }, "fast", shift);
+                    $dataPanel.animate({ "left": "0" }, "fast", shift);
                     element.scrollNavigation.panelMargin = 0;
                     break;
                 case "end":
-                    var mLeft = dataPanelWidth - rightPanelWidth;
-                    element.scrollNavigation.panelMargin = mLeft * -1;
-                    $dataPanel.animate({ "margin-left": "-" + mLeft }, "fast", shift);
+                    var pLeft = dataPanelWidth - rightPanelWidth;
+                    element.scrollNavigation.panelMargin = pLeft * -1;
+                    $dataPanel.animate({ "left": "-" + pLeft }, "fast", shift);
                     break;
                 case "now":
                     if (!element.scrollNavigation.canScroll || !$dataPanel.find(".today").length) {
                         return false;
                     }
                     maxLeft = (dataPanelWidth - rightPanelWidth) * -1;
-                    curMarg = $dataPanel.css("margin-left").replace("px", "");
+                    curLeft = $dataPanel.css("left").replace("px", "");
                     val = $dataPanel.find(".today").offset().left - $dataPanel.offset().left;
                     val *= -1;
                     if (val > 0) {
@@ -1191,15 +1203,15 @@
                     } else if (val < maxLeft) {
                         val = maxLeft;
                     }
-                    $dataPanel.animate({ "margin-left": val }, "fast", shift);
+                    $dataPanel.animate({ "left": val }, "fast", shift);
                     element.scrollNavigation.panelMargin = val;
                     break;
                 default:
                     maxLeft = (dataPanelWidth - rightPanelWidth) * -1;
-                    curMarg = $dataPanel.css("margin-left").replace("px", "");
-                    val = parseInt(curMarg, 10) + val;
+                    curLeft = $dataPanel.css("left").replace("px", "");
+                    val = parseInt(curLeft, 10) + val;
                     if (val <= 0 && val >= maxLeft) {
-                        $dataPanel.animate({ "margin-left": val }, "fast", shift);
+                        $dataPanel.animate({ "left": val }, "fast", shift);
                     }
                     element.scrollNavigation.panelMargin = val;
                 }
@@ -1212,7 +1224,7 @@
                     (element.pageNum + val) < Math.ceil(element.rowsNum / settings.itemsPerPage)) {
                     core.waitToggle(element, function () {
                         element.pageNum += val;
-                        element.hPosition = $(".fn-gantt .dataPanel").css("margin-left").replace("px", "");
+                        element.hPosition = $(".fn-gantt .dataPanel").css("left").replace("px", "");
                         element.scaleOldWidth = false;
                         core.init(element);
                     });
@@ -1267,7 +1279,7 @@
                     element.headerRows = headerRows;
                     var $rightPanel = $(element).find(".fn-gantt .rightPanel");
                     var $dataPanel = $rightPanel.find(".dataPanel");
-                    element.hPosition = $dataPanel.css("margin-left").replace("px", "");
+                    element.hPosition = $dataPanel.css("left").replace("px", "");
                     element.scaleOldWidth = ($dataPanel.width() - $rightPanel.width());
 
                     if (settings.useCookie) {
@@ -1325,24 +1337,24 @@
                 var bWidth = $sliderBar.width();
                 var wButton = $sliderBarBtn.width();
 
-                var pos, mLeft;
+                var pos, pLeft;
 
                 if ((e.pageX >= bPos.left) && (e.pageX <= bPos.left + bWidth)) {
                     pos = e.pageX - bPos.left;
                     pos = pos - wButton / 2;
                     $sliderBarBtn.css("left", pos);
 
-                    mLeft = $dataPanel.width() - $rightPanel.width();
+                    pLeft = $dataPanel.width() - $rightPanel.width();
 
-                    var pPos = pos * mLeft / bWidth * -1;
+                    var pPos = pos * pLeft / bWidth * -1;
                     if (pPos >= 0) {
-                        $dataPanel.css("margin-left", "0px");
+                        $dataPanel.css("left", "0");
                         element.scrollNavigation.panelMargin = 0;
                     } else if (pos >= bWidth - (wButton * 1)) {
-                        $dataPanel.css("margin-left", mLeft * -1);
-                        element.scrollNavigation.panelMargin = mLeft * -1;
+                        $dataPanel.css("left", pLeft * -1);
+                        element.scrollNavigation.panelMargin = pLeft * -1;
                     } else {
-                        $dataPanel.css("margin-left", pPos);
+                        $dataPanel.css("left", pPos);
                         element.scrollNavigation.panelMargin = pPos;
                     }
                     clearTimeout(element.scrollNavigation.repositionDelay);
@@ -1358,13 +1370,13 @@
                 var _panelMargin = parseInt(element.scrollNavigation.panelMargin, 10) + delta;
                 if (_panelMargin > 0) {
                     element.scrollNavigation.panelMargin = 0;
-                    $(element).find(".fn-gantt .dataPanel").css("margin-left", element.scrollNavigation.panelMargin);
+                    $(element).find(".fn-gantt .dataPanel").css("left", element.scrollNavigation.panelMargin);
                 } else if (_panelMargin < element.scrollNavigation.panelMaxPos * -1) {
                     element.scrollNavigation.panelMargin = element.scrollNavigation.panelMaxPos * -1;
-                    $(element).find(".fn-gantt .dataPanel").css("margin-left", element.scrollNavigation.panelMargin);
+                    $(element).find(".fn-gantt .dataPanel").css("left", element.scrollNavigation.panelMargin);
                 } else {
                     element.scrollNavigation.panelMargin = _panelMargin;
-                    $(element).find(".fn-gantt .dataPanel").css("margin-left", element.scrollNavigation.panelMargin);
+                    $(element).find(".fn-gantt .dataPanel").css("left", element.scrollNavigation.panelMargin);
                 }
                 core.synchronizeScroller(element);
             },
@@ -1380,12 +1392,12 @@
                 var bWidth = $sliderBar.width();
                 var wButton = $sliderBtn.width();
 
-                var mLeft = $dataPanel.width() - $rightPanel.width();
-                var hPos = $dataPanel.css("margin-left") || 0;
+                var pLeft = $dataPanel.width() - $rightPanel.width();
+                var hPos = $dataPanel.css("left") || 0;
                 if (hPos) {
                     hPos = hPos.replace("px", "");
                 }
-                var pos = hPos * bWidth / mLeft - $sliderBtn.width() * 0.25;
+                var pos = hPos * bWidth / pLeft - $sliderBtn.width() * 0.25;
                 pos = pos > 0 ? 0 : (pos * -1 >= bWidth - (wButton * 0.75)) ? (bWidth - (wButton * 1.25)) * -1 : pos;
                 $sliderBtn.css("left", pos * -1);
             },
@@ -1402,7 +1414,7 @@
                     }
 
                     if (settings.useCookie) {
-                        $.cookie(settings.cookieKey + "ScrollPos", $dataPanel.css("margin-left").replace("px", ""));
+                        $.cookie(settings.cookieKey + "ScrollPos", $dataPanel.css("left").replace("px", ""));
                     }
                 }, 500);
             },
@@ -1682,19 +1694,6 @@
             // Get the current page height
             getPageHeight: function (element) {
                 return element.pageNum + 1 === element.pageCount ? element.rowsOnLastPage * tools.getCellSize() : settings.itemsPerPage * tools.getCellSize();
-            },
-
-            // Get the current margin size of the progress bar
-            getProgressBarMargin: function () {
-                if (typeof tools._getProgressBarMargin === "undefined") {
-                    var measure = $('<div style="display: none; position: absolute;"><div class="fn-gantt"><div class="rightPanel"><div class="dataPanel"><div class="row day"><div class="bar"></div></div></div></div></div></div>');
-                    var bar = measure.find(".fn-gantt .rightPanel .day .bar");
-                    $("body").append(measure);
-                    tools._getProgressBarMargin = parseInt(bar.css("margin-left").replace("px", ""), 10);
-                    tools._getProgressBarMargin += parseInt(bar.css("margin-right").replace("px", ""), 10);
-                    measure.empty().remove();
-                }
-                return tools._getProgressBarMargin;
             }
         };
 
