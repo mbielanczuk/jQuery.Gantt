@@ -1126,7 +1126,7 @@
                                 dTo = tools.genId(tools.dateDeserialize(day.to));
                                 from = $(element).find("#dh-" + dFrom);
                                 cFrom = from.data("offset");
-                                dl = Math.floor((dTo - dFrom) / UTC_DAY_IN_MS) + 1;
+                                dl = Math.round((dTo - dFrom) / UTC_DAY_IN_MS) + 1;
                                 dp = 100 * (cellWidth * dl - 1) / dataPanelWidth;
 
                                 _bar = core.createProgressBar(day.label, day.desc, day.customClass, day.dataObj);
