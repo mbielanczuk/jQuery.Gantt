@@ -152,21 +152,6 @@
         return new Date( this.getFullYear(), this.getMonth(), this.getDate() + diff );
     };
 
-    // fixes https://github.com/taitems/jQuery.Gantt/issues/62
-    function ktkGetNextDate(currentDate, scaleStep) {
-        for(var minIncrements = 1;; minIncrements++) {
-            var nextDate = new Date(currentDate);
-            nextDate.setHours(currentDate.getHours() + scaleStep * minIncrements);
-
-            if (nextDate.getTime() !== currentDate.getTime()) {
-                return nextDate;
-            }
-
-            // If code reaches here, it's because current didn't really increment (invalid local time) because of daylight-saving adjustments
-            // => retry adding 2, 3, 4 hours, and so on (until nextDate > current)
-        }
-    }
-
     $.fn.gantt = function (options) {
 
         var scales = ["hours", "days", "weeks", "months"];
@@ -706,11 +691,9 @@
                 default:
                     range = tools.parseDateRange(element.dateStart, element.dateEnd);
                     dataPanelWidth = range.length * tools.getCellSize();
-
-                    var dateBefore = ktkGetNextDate(range[0], -1);
-                    year = dateBefore.getFullYear();
-                    month = dateBefore.getMonth();
-                    //day = dateBefore; // <- never used?
+                    
+                    year = range[0].getFullYear();
+                    month = range[0].getMonth();
 
                     for (i = 0, len = range.length; i < len; i++) {
                         rday = range[i];
@@ -1143,7 +1126,7 @@
                                 dTo = tools.genId(tools.dateDeserialize(day.to));
                                 from = $(element).find("#dh-" + dFrom);
                                 cFrom = from.data("offset");
-                                dl = Math.floor((dTo - dFrom) / UTC_DAY_IN_MS) + 1;
+                                dl = Math.round((dTo - dFrom) / UTC_DAY_IN_MS) + 1;
                                 dp = 100 * (cellWidth * dl - 1) / dataPanelWidth;
 
                                 _bar = core.createProgressBar(day.label, day.desc, day.customClass, day.dataObj);
@@ -1236,9 +1219,9 @@
                 core.waitToggle(element, function () {
 
                     var zoomIn = (val < 0);
-
                     var scaleSt = element.scaleStep + val * 3;
-                    scaleSt = scaleSt <= 1 ? 1 : scaleSt === 4 ? 3 : scaleSt;
+                    // adjust hour scale to desired factors of 24
+                    scaleSt = {4:3, 5:6, 9:8, 11:12}[scaleSt] || (scaleSt < 1 ? 1 : scaleSt);
                     var scale = settings.scale;
                     var headerRows = element.headerRows;
                     if (settings.scale === "hours" && scaleSt >= 13) {
@@ -1518,64 +1501,33 @@
 
             // Return an array of Date objects between `from` and `to`
             parseDateRange: function (from, to) {
-                var current = new Date(from.getTime());
-                var ret = [];
-                var i = 0;
+                var year = from.getFullYear();
+                var month = from.getMonth();
+                var date = from.getDate();
+                var range = [], i = 0;
                 do {
-                    ret[i++] = new Date(current.getTime());
-                    current.setDate(current.getDate() + 1);
-                } while (current <= to);
-                return ret;
+                    range[i] = new Date(year, month, date + i);
+                } while (range[i++] < to);
+                return range;
             },
 
             // Return an array of Date objects between `from` and `to`,
             // scaled hourly
             parseTimeRange: function (from, to, scaleStep) {
-                var current = new Date(from);
-                var end = new Date(to);
-
-                // GR: Fix begin
-                current.setHours(0, 0, 0, 0);
-
-                end.setMilliseconds(0);
-                end.setSeconds(0);
-                if (end.getMinutes() > 0 || end.getHours() > 0) {
-                    end.setMinutes(0);
-                    end.setHours(0);
-                    end.setTime(end.getTime() + UTC_DAY_IN_MS);
-                }
-                // GR: Fix end
-
-                var ret = [];
-                var i = 0;
-                for(;;) {
-                    var dayStartTime = new Date(current);
-                    dayStartTime.setHours(Math.floor((current.getHours()) / scaleStep) * scaleStep);
-
-                    if (ret[i] && dayStartTime.getDay() !== ret[i].getDay()) {
-                        // If mark-cursor jumped to next day, make sure it starts at 0 hours
-                        dayStartTime.setHours(0);
+                var year = from.getFullYear();
+                var month = from.getMonth();
+                var date = from.getDate();
+                var hour = from.getHours();
+                hour -= hour % scaleStep;
+                var range = [], h = 0, i = 0;
+                do {
+                    range[i] = new Date(year, month, date, hour + h++ * scaleStep);
+                    // overwrite any hours repeated due to DST changes
+                    if (i > 0 && range[i].getHours() === range[i-1].getHours()) {
+                        i--;
                     }
-                    ret[i] = dayStartTime;
-
-                    // Note that we use ">" because we want to include the end-time point.
-                    if (current > to)  { break; }
-
-                    /* BUG-2: current is moved backwards producing a dead-lock! (crashes chrome/IE/firefox)
-                     * SEE: https://github.com/taitems/jQuery.Gantt/issues/62
-                    if (current.getDay() !== ret[i].getDay()) {
-                       current.setHours(0);
-                    }
-                    */
-
-                    // GR Fix Begin
-                    current = ktkGetNextDate(dayStartTime, scaleStep);
-                    // GR Fix End
-
-                    i++;
-                }
-
-                return ret;
+                } while (range[i++] < to);
+                return range;
             },
 
             // Return an array of Date objects between a range of weeks
