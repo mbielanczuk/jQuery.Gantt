@@ -1470,11 +1470,9 @@
                 var minDate = null;
                 $.each(element.data, function (i, entry) {
                     $.each(entry.values, function (i, date) {
-                        if (isNaN(tools.dateDeserialize(date.from))) {
-                            return ;
-                        }
-                        minDate = minDate > tools.dateDeserialize(date.from) ||
-                            minDate === null ? tools.dateDeserialize(date.from) : minDate;
+                        var fromDate = tools.dateDeserialize(date.from);
+                        if (isNaN(fromDate)) { return; }
+                        minDate = minDate > fromDate || minDate === null ? fromDate : minDate;
                     });
                 });
                 minDate = minDate || new Date();
