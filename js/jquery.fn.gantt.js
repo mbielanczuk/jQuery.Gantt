@@ -1432,7 +1432,9 @@
                 var maxDate = null;
                 $.each(element.data, function (i, entry) {
                     $.each(entry.values, function (i, date) {
-                        maxDate = maxDate < tools.dateDeserialize(date.to) ? tools.dateDeserialize(date.to) : maxDate;
+                        var toDate = tools.dateDeserialize(date.to);
+                        if (isNaN(toDate)) { return; }
+                        maxDate = maxDate < toDate ? toDate : maxDate;
                     });
                 });
                 maxDate = maxDate || new Date();
@@ -1468,8 +1470,9 @@
                 var minDate = null;
                 $.each(element.data, function (i, entry) {
                     $.each(entry.values, function (i, date) {
-                        minDate = minDate > tools.dateDeserialize(date.from) ||
-                            minDate === null ? tools.dateDeserialize(date.from) : minDate;
+                        var fromDate = tools.dateDeserialize(date.from);
+                        if (isNaN(fromDate)) { return; }
+                        minDate = minDate > fromDate || minDate === null ? fromDate : minDate;
                     });
                 });
                 minDate = minDate || new Date();
