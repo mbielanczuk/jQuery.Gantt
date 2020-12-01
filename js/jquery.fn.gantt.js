@@ -1432,10 +1432,9 @@
                 var maxDate = null;
                 $.each(element.data, function (i, entry) {
                     $.each(entry.values, function (i, date) {
-                        if (isNaN(tools.dateDeserialize(date.to))) {
-                            return ;
-                        }
-                        maxDate = maxDate < tools.dateDeserialize(date.to) ? tools.dateDeserialize(date.to) : maxDate;
+                        var toDate = tools.dateDeserialize(date.to);
+                        if (isNaN(toDate)) { return; }
+                        maxDate = maxDate < toDate ? toDate : maxDate;
                     });
                 });
                 maxDate = maxDate || new Date();
