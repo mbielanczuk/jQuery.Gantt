@@ -1,5 +1,5 @@
 {
-  "name": "jquery-gantt",
+  "name": "@taitems/jquery-gantt",
   "version": "1.1.1",
   "description": "jQuery Gantt Chart is a simple chart that implements gantt functionality as a jQuery component.",
   "main": "index.js",

@@ -1,5 +1,13 @@
-[Demo and Documentation](http://taitems.github.com/jQuery.Gantt/)
-==============
+![npm](https://img.shields.io/npm/v/@taitems/jquery-gantt)
+## [Demo and Documentation](http://taitems.github.com/jQuery.Gantt/)
+
+## Installation
+
+- Git clone
+- `yarn add @taitems/jquery-gantt`, or
+- `npm install @taitems/jquery-gantt` 
+
+## About
 
 jQuery Gantt Chart is a simple chart that implements gantt functionality as 
 a jQuery component.
